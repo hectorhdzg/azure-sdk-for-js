@@ -1,16 +1,10 @@
 # Release History
 
-## 3.13.1 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
+## 3.13.1 (2021-08-23)
 
 ### Bugs Fixed
 
 - Fixed bugs in session token clearing logic. Session Not found (404, substatus 1002) was not being handled correctly by the session retry policy and would mistakenly retry the request with the same session token.
-
-### Other Changes
 
 ## 3.13.0 (2021-08-10)
 
