@@ -49,15 +49,8 @@ export interface JsonWebKey {
   /**
    * Json web key operations. For more
    * information on possible key operations, see KeyOperation.
-   *
-   * @deprecated Use {@link key_ops} instead. keyOps will be removed in version 5.x of `@azure/keyvault-keys`.
    */
   keyOps?: KeyOperation[];
-  /**
-   * Json web key operations. For more
-   * information on possible key operations, see KeyOperation.
-   */
-  key_ops?: KeyOperation[];
   /**
    * RSA modulus.
    */
@@ -293,7 +286,7 @@ export interface KeyReleasePolicy {
   contentType?: string;
 
   /** Blob encoding the policy rules under which the key can be released. */
-  data?: Uint8Array;
+  encodedPolicy?: Uint8Array;
 }
 
 /**
@@ -582,8 +575,11 @@ export enum KnownKeyOperations {
 
 /** Known values of {@link KeyExportEncryptionAlgorithm} that the service accepts. */
 export enum KnownKeyExportEncryptionAlgorithm {
+  /** CKM_RSA_AES_KEY_WRAP Key Export Encryption Algorithm */
   CkmRsaAesKeyWrap = "CKM_RSA_AES_KEY_WRAP",
+  /** RSA_AES_KEY_WRAP_256 Key Export Encryption Algorithm */
   RsaAesKeyWrap256 = "RSA_AES_KEY_WRAP_256",
+  /** RSA_AES_KEY_WRAP_384 Key Export Encryption Algorithm */
   RsaAesKeyWrap384 = "RSA_AES_KEY_WRAP_384"
 }
 
@@ -599,14 +595,6 @@ export enum KnownKeyExportEncryptionAlgorithm {
  */
 export type KeyExportEncryptionAlgorithm = string;
 /* eslint-enable tsdoc/syntax */
-
-/**
- * Result of the {@link KeyClient.getRandomBytes} operation.
- */
-export interface RandomBytes {
-  /** The random bytes returned by the service. */
-  bytes: Uint8Array;
-}
 
 /**
  * Options for {@link KeyClient.getCryptographyClient}.

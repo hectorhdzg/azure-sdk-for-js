@@ -6,13 +6,12 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
-import "@azure/core-paging";
 import { PagedAsyncIterableIterator } from "@azure/core-paging";
 import { DiskEncryptionSets } from "../operationsInterfaces";
 import * as coreClient from "@azure/core-client";
 import * as Mappers from "../models/mappers";
 import * as Parameters from "../models/parameters";
-import { ComputeManagementClientContext } from "../computeManagementClientContext";
+import { ComputeManagementClient } from "../computeManagementClient";
 import { PollerLike, PollOperationState, LroEngine } from "@azure/core-lro";
 import { LroImpl } from "../lroImpl";
 import {
@@ -42,13 +41,13 @@ import {
 /// <reference lib="esnext.asynciterable" />
 /** Class containing DiskEncryptionSets operations. */
 export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
-  private readonly client: ComputeManagementClientContext;
+  private readonly client: ComputeManagementClient;
 
   /**
    * Initialize a new instance of the class DiskEncryptionSets class.
    * @param client Reference to the service client
    */
-  constructor(client: ComputeManagementClientContext) {
+  constructor(client: ComputeManagementClient) {
     this.client = client;
   }
 
@@ -152,7 +151,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param options The options parameters.
    */
   public listAssociatedResources(
@@ -225,7 +224,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param diskEncryptionSet disk encryption set object supplied in the body of the Put disk encryption
    *                          set operation.
    * @param options The options parameters.
@@ -296,7 +295,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param diskEncryptionSet disk encryption set object supplied in the body of the Put disk encryption
    *                          set operation.
    * @param options The options parameters.
@@ -321,7 +320,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param diskEncryptionSet disk encryption set object supplied in the body of the Patch disk
    *                          encryption set operation.
    * @param options The options parameters.
@@ -392,7 +391,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param diskEncryptionSet disk encryption set object supplied in the body of the Patch disk
    *                          encryption set operation.
    * @param options The options parameters.
@@ -417,7 +416,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param options The options parameters.
    */
   get(
@@ -436,7 +435,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param options The options parameters.
    */
   async beginDelete(
@@ -499,7 +498,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param options The options parameters.
    */
   async beginDeleteAndWait(
@@ -545,7 +544,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param options The options parameters.
    */
   private _listAssociatedResources(
@@ -596,7 +595,7 @@ export class DiskEncryptionSetsImpl implements DiskEncryptionSets {
    * @param resourceGroupName The name of the resource group.
    * @param diskEncryptionSetName The name of the disk encryption set that is being created. The name
    *                              can't be changed after the disk encryption set is created. Supported characters for the name are
-   *                              a-z, A-Z, 0-9 and _. The maximum name length is 80 characters.
+   *                              a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters.
    * @param nextLink The nextLink from the previous successful call to the ListAssociatedResources
    *                 method.
    * @param options The options parameters.

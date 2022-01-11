@@ -92,7 +92,7 @@ The `LogsQueryClient` can be used to query a Log Analytics workspace using the [
 
 ```ts
 import { DefaultAzureCredential } from "@azure/identity";
-import { Durations, LogsQueryClient } from "@azure/monitor-query";
+import { Durations, LogsQueryClient, LogsQueryResultStatus, LogsTable } from "@azure/monitor-query";
 
 const azureLogAnalyticsWorkspaceId = "<the Workspace Id for your Azure Log Analytics resource>";
 const logsQueryClient = new LogsQueryClient(new DefaultAzureCredential());
@@ -232,7 +232,7 @@ export async function main() {
 
   const result = await logsQueryClient.queryBatch(queriesBatch);
 
-  if (result.results == null) {
+  if (result == null) {
     throw new Error("No response for query");
   }
 
@@ -551,23 +551,27 @@ export async function main() {
   const metricsQueryClient = new MetricsQueryClient(tokenCredential);
 
   if (!metricsResourceId) {
-    throw new Error("METRICS_RESOURCE_ID must be set in the environment for this sample");
+    throw new Error(
+      "METRICS_RESOURCE_ID for an Azure Metrics Advisor subscription must be set in the environment for this sample"
+    );
   }
 
-  console.log(`Picking an example metric to query: ${firstMetricName}`);
+  console.log(`Picking an example metric to query: MatchedEventCount`);
 
   const metricsResponse = await metricsQueryClient.queryResource(
     metricsResourceId,
-    { duration: Durations.fiveMinutes },
+    ["MatchedEventCount"],
     {
-      metricNames: ["MatchedEventCount"],
-      interval: "PT1M",
-      aggregations: [AggregationType.Count]
+      timespan: {
+        duration: Durations.fiveMinutes
+      },
+      granularity: "PT1M",
+      aggregations: ["Count"]
     }
   );
 
   console.log(
-    `Query cost: ${metricsResponse.cost}, interval: ${metricsResponse.interval}, time span: ${metricsResponse.timespan}`
+    `Query cost: ${metricsResponse.cost}, granularity: ${metricsResponse.granularity}, time span: ${metricsResponse.timespan}`
   );
 
   const metrics: Metric[] = metricsResponse.metrics;

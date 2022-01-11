@@ -15,7 +15,11 @@ export interface CommunicationRelayConfigurationRequest {
   /**
    * An existing ACS identity.
    */
-  id: string;
+  id?: string;
+  /**
+   * The routing methodology to where the ICE server will be located from the client.
+   */
+  routeType?: RouteType;
 }
 
 /**
@@ -48,6 +52,10 @@ export interface CommunicationIceServer {
    * Credential for the server.
    */
   credential: string;
+  /**
+   * The routing methodology to where the ICE server will be located from the client.
+   */
+  routeType: RouteType;
 }
 
 /**
@@ -84,6 +92,22 @@ export interface CommunicationError {
    * The inner error if any.
    */
   readonly innerError?: CommunicationError;
+}
+
+/**
+ * Defines values for RouteType.
+ */
+export type RouteType = "any" | "nearest";
+
+/**
+ * Optional parameters.
+ */
+export interface CommunicationNetworkTraversalIssueRelayConfigurationOptionalParams
+  extends coreHttp.OperationOptions {
+  /**
+   * Request for a CommunicationRelayConfiguration.
+   */
+  body?: CommunicationRelayConfigurationRequest;
 }
 
 /**

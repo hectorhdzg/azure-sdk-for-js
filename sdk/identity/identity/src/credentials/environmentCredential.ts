@@ -4,14 +4,13 @@
 import { AccessToken, TokenCredential, GetTokenOptions } from "@azure/core-auth";
 
 import { credentialLogger, processEnvVars, formatSuccess, formatError } from "../util/logging";
-import { TokenCredentialOptions } from "../client/identityClient";
+import { TokenCredentialOptions } from "../tokenCredentialOptions";
 import { ClientSecretCredential } from "./clientSecretCredential";
-import { AuthenticationError, CredentialUnavailableError } from "../client/errors";
+import { AuthenticationError, CredentialUnavailableError } from "../errors";
 import { checkTenantId } from "../util/checkTenantId";
 import { trace } from "../util/tracing";
 import { ClientCertificateCredential } from "./clientCertificateCredential";
 import { UsernamePasswordCredential } from "./usernamePasswordCredential";
-import { CredentialPersistenceOptions } from "./credentialPersistenceOptions";
 
 /**
  * Contains the list of all supported environment variable names so that an
@@ -29,15 +28,14 @@ export const AllSupportedEnvironmentVariables = [
   "AZURE_PASSWORD"
 ];
 
-const logger = credentialLogger("EnvironmentCredential");
+const credentialName = "EnvironmentCredential";
+const logger = credentialLogger(credentialName);
 
 /**
  * Enables authentication to Azure Active Directory depending on the available environment variables.
  * Defines options for the EnvironmentCredential class.
  */
-export interface EnvironmentCredentialOptions
-  extends TokenCredentialOptions,
-    CredentialPersistenceOptions {}
+export interface EnvironmentCredentialOptions extends TokenCredentialOptions {}
 
 /**
  * Enables authentication to Azure Active Directory using client secret
@@ -98,7 +96,7 @@ export class EnvironmentCredential implements TokenCredential {
       this._credential = new ClientCertificateCredential(
         tenantId,
         clientId,
-        certificatePath,
+        { certificatePath },
         options
       );
       return;
@@ -127,7 +125,7 @@ export class EnvironmentCredential implements TokenCredential {
    * @param options - Optional parameters. See {@link GetTokenOptions}.
    */
   async getToken(scopes: string | string[], options: GetTokenOptions = {}): Promise<AccessToken> {
-    return trace("EnvironmentCredential.getToken", options, async (newOptions) => {
+    return trace(`${credentialName}.getToken`, options, async (newOptions) => {
       if (this._credential) {
         try {
           const result = await this._credential.getToken(scopes, newOptions);
@@ -135,7 +133,7 @@ export class EnvironmentCredential implements TokenCredential {
           return result;
         } catch (err) {
           const authenticationError = new AuthenticationError(400, {
-            error: "EnvironmentCredential authentication failed.",
+            error: `${credentialName} authentication failed. To troubleshoot, visit https://aka.ms/azsdk/js/identity/environmentcredential/troubleshoot.`,
             error_description: err.message
               .toString()
               .split("More details:")
@@ -146,7 +144,7 @@ export class EnvironmentCredential implements TokenCredential {
         }
       }
       throw new CredentialUnavailableError(
-        "EnvironmentCredential is unavailable. No underlying credential could be used."
+        `${credentialName} is unavailable. No underlying credential could be used. To troubleshoot, visit https://aka.ms/azsdk/js/identity/environmentcredential/troubleshoot.`
       );
     });
   }

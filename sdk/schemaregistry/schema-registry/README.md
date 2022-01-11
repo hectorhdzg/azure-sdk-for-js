@@ -63,12 +63,6 @@ const client = new SchemaRegistryClient("<fullyQualifiedNamespace>", new Default
 `SchemaRegistryClient` provides the API for storing and retrieving schemas in
 schema registry.
 
-### SchemaRegistry serializers
-
-- [@azure/schema-registry-avro](https://www.npmjs.com/package/@azure/schema-registry-avro)
-  is a separate package that uses `SchemaRegistryClient` to pair schema ID along
-  with Avro Binary Encoding.
-
 ## Examples
 
 ### Register a schema
@@ -83,7 +77,7 @@ const description = {
   name: "<name>",
   groupName: "<group name>",
   format: "<schema format>",
-  schemaDefinition: "<schema definition>"
+  definition: "<schema definition>"
 }
 
 const registered = await client.registerSchema(description);
@@ -101,11 +95,11 @@ const client = new SchemaRegistryClient("<fullyQualifiedNamespace>", new Default
 const description = {
   name: "<name>",
   groupName: "<group name>",
-  format: "<schema format>"
-  schemaDefinition: "<schema definition>"
+  format: "<schema format>",
+  definition: "<schema definition>"
 }
 
-const found = await client.getSchemaId(description);
+const found = await client.getSchemaProperties(description);
 if (found) {
   console.log(`Got schema ID=${found.id}`);
 }
@@ -120,7 +114,7 @@ const { SchemaRegistryClient } = require("@azure/schema-registry");
 const client = new SchemaRegistryClient("<fullyQualifiedNamespace>", new DefaultAzureCredential());
 const foundSchema = await client.getSchema("<id>");
 if (foundSchema) {
-  console.log(`Got schema definition=${foundSchema.schemaDefinition}`);
+  console.log(`Got schema definition=${foundSchema.definition}`);
 }
 ```
 
@@ -178,5 +172,4 @@ learn more about how to build and test the code.
 [azure_sub]: https://azure.microsoft.com/free/
 [azure_portal]: https://portal.azure.com
 [azure_identity]: https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity
-[cognitive_auth]: https://docs.microsoft.com/azure/cognitive-services/authentication
 [defaultazurecredential]: https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/identity/identity#defaultazurecredential

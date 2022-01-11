@@ -2,19 +2,19 @@
 // Licensed under the MIT license.
 
 import {
-  TableServiceClientOptions,
-  TableEntity,
   CreateTableEntityResponse,
   DeleteTableEntityOptions,
   GetTableEntityOptions,
   GetTableEntityResponse,
   ListTableEntitiesOptions,
-  UpdateMode,
-  UpdateTableEntityOptions,
+  TableEntity,
   TableEntityResult,
   TableItem,
+  TableServiceClientOptions,
+  TableTransactionResponse,
   TransactionAction,
-  TableTransactionResponse
+  UpdateMode,
+  UpdateTableEntityOptions
 } from "../models";
 import { Pipeline, PipelineRequest } from "@azure/core-rest-pipeline";
 import { NamedKeyCredential } from "@azure/core-auth";
@@ -45,13 +45,9 @@ export type ListTableItemsResponse = Array<TableItem> & {
  */
 export type ListEntitiesResponse<T extends object> = Array<TableEntityResult<T>> & {
   /**
-   * Contains the continuation token value for partition key.
+   * Contains the continuation token value for the next page.
    */
-  nextPartitionKey?: string;
-  /**
-   * Contains the continuation token value for row key.
-   */
-  nextRowKey?: string;
+  continuationToken?: string;
 };
 
 export interface ClientParamsFromConnectionString {

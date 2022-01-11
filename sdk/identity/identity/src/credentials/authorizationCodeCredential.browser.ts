@@ -3,11 +3,11 @@
 
 import { TokenCredential, AccessToken } from "@azure/core-auth";
 
-import { TokenCredentialOptions } from "../client/identityClient";
+import { TokenCredentialOptions } from "../tokenCredentialOptions";
 import { credentialLogger, formatError } from "../util/logging";
 
 const BrowserNotSupportedError = new Error(
-  "AuthorizationCodeCredential is not supported in the browser.  InteractiveBrowserCredential is more appropriate for this use case."
+  "AuthorizationCodeCredential is not supported in the browser. InteractiveBrowserCredential is more appropriate for this use case."
 );
 const logger = credentialLogger("AuthorizationCodeCredential");
 

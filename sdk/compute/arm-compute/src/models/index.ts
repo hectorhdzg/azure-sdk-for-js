@@ -51,29 +51,6 @@ export interface ComputeOperationValue {
   readonly provider?: string;
 }
 
-/** The Resource model definition. */
-export interface Resource {
-  /**
-   * Resource Id
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly id?: string;
-  /**
-   * Resource name
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly name?: string;
-  /**
-   * Resource type
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly type?: string;
-  /** Resource location */
-  location: string;
-  /** Resource tags */
-  tags?: { [propertyName: string]: string };
-}
-
 export interface SubResource {
   /** Resource Id */
   id?: string;
@@ -101,6 +78,29 @@ export interface Sku {
   tier?: string;
   /** Specifies the number of virtual machines in the scale set. */
   capacity?: number;
+}
+
+/** The Resource model definition. */
+export interface Resource {
+  /**
+   * Resource Id
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly id?: string;
+  /**
+   * Resource name
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly name?: string;
+  /**
+   * Resource type
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly type?: string;
+  /** Resource location */
+  location: string;
+  /** Resource tags */
+  tags?: { [propertyName: string]: string };
 }
 
 /** The Update Resource model definition. */
@@ -241,14 +241,6 @@ export interface VirtualMachineExtensionsListResult {
   value?: VirtualMachineExtension[];
 }
 
-/** The complex type of the extended location. */
-export interface ExtendedLocation {
-  /** The name of the extended location. */
-  name?: string;
-  /** The type of the extended location. */
-  type?: ExtendedLocationTypes;
-}
-
 /** Used for establishing the purchase context of any 3rd Party artifact through MarketPlace. */
 export interface PurchasePlan {
   /** The publisher ID. */
@@ -292,6 +284,14 @@ export interface VirtualMachineImageFeature {
   name?: string;
   /** The corresponding value for the feature. */
   value?: string;
+}
+
+/** The complex type of the extended location. */
+export interface ExtendedLocation {
+  /** The name of the extended location. */
+  name?: string;
+  /** The type of the extended location. */
+  type?: ExtendedLocationTypes;
 }
 
 /** An error response from the Compute service. */
@@ -767,7 +767,7 @@ export interface UefiSettings {
 
 /** Specifies the boot diagnostic settings state. <br><br>Minimum api-version: 2015-06-15. */
 export interface DiagnosticsProfile {
-  /** Boot Diagnostics is a debugging feature which allows you to view Console Output and Screenshot to diagnose VM status. <br><br> You can easily view the output of your console log. <br><br> Azure also enables you to see a screenshot of the VM from the hypervisor. */
+  /** Boot Diagnostics is a debugging feature which allows you to view Console Output and Screenshot to diagnose VM status. <br>**NOTE**: If storageUri is being specified then ensure that the storage account is in the same region and subscription as the VM. <br><br> You can easily view the output of your console log. <br><br> Azure also enables you to see a screenshot of the VM from the hypervisor. */
   bootDiagnostics?: BootDiagnostics;
 }
 
@@ -1422,25 +1422,6 @@ export interface RestorePointCollectionSourceProperties {
   id?: string;
 }
 
-/** The resource model definition for an Azure Resource Manager proxy resource. It will not have tags and a location */
-export interface ProxyResource {
-  /**
-   * Resource Id
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly id?: string;
-  /**
-   * Resource name
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly name?: string;
-  /**
-   * Resource type
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly type?: string;
-}
-
 /** Describes the properties of the Virtual Machine for which the restore point was created. The properties provided are a subset and the snapshot of the overall Virtual Machine properties captured at the time of the restore point creation. */
 export interface RestorePointSourceMetadata {
   /** Gets the hardware profile. */
@@ -1503,16 +1484,23 @@ export interface RestorePointSourceVMDataDisk {
   diskRestorePoint?: ApiEntityReference;
 }
 
-/** Restore Point Provisioning details. */
-export interface RestorePointProvisioningDetails {
-  /** Gets the creation time of the restore point. */
-  creationTime?: Date;
-  /** Gets the total size of the data in all the disks which are part of the restore point. */
-  totalUsedSizeInBytes?: number;
-  /** Gets the status of the Create restore point operation. */
-  statusCode?: number;
-  /** Gets the status message of the Create restore point operation. */
-  statusMessage?: string;
+/** The resource model definition for an Azure Resource Manager proxy resource. It will not have tags and a location */
+export interface ProxyResource {
+  /**
+   * Resource Id
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly id?: string;
+  /**
+   * Resource name
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly name?: string;
+  /**
+   * Resource type
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly type?: string;
 }
 
 /** The List restore point collection operation response. */
@@ -2660,6 +2648,12 @@ export interface PurchasePlanAutoGenerated {
   promotionCode?: string;
 }
 
+/** List of supported capabilities (like accelerated networking) persisted on the disk resource for VM use. */
+export interface SupportedCapabilities {
+  /** True if the image from which the OS disk is created supports accelerated networking. */
+  acceleratedNetwork?: boolean;
+}
+
 /** Data used when creating a disk. */
 export interface CreationData {
   /** This enumerates the possible sources of a disk's creation. */
@@ -2795,6 +2789,8 @@ export interface DiskUpdate {
   burstingEnabled?: boolean;
   /** Purchase plan information to be added on the OS disk */
   purchasePlan?: PurchasePlanAutoGenerated;
+  /** List of supported capabilities (like accelerated networking) to be added on the OS disk. */
+  supportedCapabilities?: SupportedCapabilities;
   /**
    * Properties of the disk for which update is pending.
    * NOTE: This property will not be serialized. It can only be populated by the server.
@@ -2802,6 +2798,8 @@ export interface DiskUpdate {
   readonly propertyUpdatesInProgress?: PropertyUpdatesInProgress;
   /** Indicates the OS on a disk supports hibernation. */
   supportsHibernation?: boolean;
+  /** Policy for controlling export on the disk. */
+  publicNetworkAccess?: PublicNetworkAccess;
 }
 
 /** The List Disks operation response. */
@@ -2859,6 +2857,8 @@ export interface SnapshotUpdate {
   diskAccessId?: string;
   /** Indicates the OS on a snapshot supports hibernation. */
   supportsHibernation?: boolean;
+  /** Policy for controlling export on the disk. */
+  publicNetworkAccess?: PublicNetworkAccess;
 }
 
 /** The List Snapshots operation response. */
@@ -3381,6 +3381,27 @@ export interface SharedGalleryImageVersionList {
   value: SharedGalleryImageVersion[];
   /** The uri to fetch the next page of shared gallery image versions. Call ListNext() with this to fetch the next page of shared gallery image versions. */
   nextLink?: string;
+}
+
+/** Base information about the community gallery resource in pir. */
+export interface PirCommunityGalleryResource {
+  /**
+   * Resource name
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly name?: string;
+  /**
+   * Resource location
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly location?: string;
+  /**
+   * Resource type
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly type?: string;
+  /** The unique id of this community gallery. */
+  uniqueId?: string;
 }
 
 export interface RoleInstance {
@@ -3967,6 +3988,173 @@ export interface ManagedArtifact {
   id: string;
 }
 
+export type SubResourceWithColocationStatus = SubResource & {
+  /** Describes colocation status of a resource in the Proximity Placement Group. */
+  colocationStatus?: InstanceViewStatus;
+};
+
+/** Virtual machine image resource information. */
+export type VirtualMachineImageResource = SubResource & {
+  /** The name of the resource. */
+  name: string;
+  /** The supported Azure location of the resource. */
+  location: string;
+  /** Specifies the tags that are assigned to the virtual machine. For more information about using tags, see [Using tags to organize your Azure resources](https://docs.microsoft.com/azure/azure-resource-manager/resource-group-using-tags.md). */
+  tags?: { [propertyName: string]: string };
+  /** The extended location of the Virtual Machine. */
+  extendedLocation?: ExtendedLocation;
+};
+
+/** Specifies information about the image to use. You can specify information about platform images, marketplace images, or virtual machine images. This element is required when you want to use a platform image, marketplace image, or virtual machine image, but is not used in other creation operations. NOTE: Image reference publisher and offer can only be set when you create the scale set. */
+export type ImageReference = SubResource & {
+  /** The image publisher. */
+  publisher?: string;
+  /** Specifies the offer of the platform image or marketplace image used to create the virtual machine. */
+  offer?: string;
+  /** The image SKU. */
+  sku?: string;
+  /** Specifies the version of the platform image or marketplace image used to create the virtual machine. The allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers. Specify 'latest' to use the latest version of an image available at deploy time. Even if you use 'latest', the VM image will not automatically update after deploy time even if a new version becomes available. */
+  version?: string;
+  /**
+   * Specifies in decimal numbers, the version of platform image or marketplace image used to create the virtual machine. This readonly field differs from 'version', only if the value specified in 'version' field is 'latest'.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly exactVersion?: string;
+  /** Specified the shared gallery image unique id for vm deployment. This can be fetched from shared gallery image GET call. */
+  sharedGalleryImageId?: string;
+};
+
+/** Describes the parameter of customer managed disk encryption set resource id that can be specified for disk. <br><br> NOTE: The disk encryption set resource id can only be specified for managed disk. Please refer https://aka.ms/mdssewithcmkoverview for more details. */
+export type DiskEncryptionSetParameters = SubResource & {};
+
+/** The parameters of a managed disk. */
+export type ManagedDiskParameters = SubResource & {
+  /** Specifies the storage account type for the managed disk. NOTE: UltraSSD_LRS can only be used with data disks, it cannot be used with OS Disk. */
+  storageAccountType?: StorageAccountTypes;
+  /** Specifies the customer managed disk encryption set resource id for the managed disk. */
+  diskEncryptionSet?: DiskEncryptionSetParameters;
+};
+
+/** Describes a network interface reference. */
+export type NetworkInterfaceReference = SubResource & {
+  /** Specifies the primary network interface in case the virtual machine has more than 1 network interface. */
+  primary?: boolean;
+  /** Specify what happens to the network interface when the VM is deleted */
+  deleteOption?: DeleteOptions;
+};
+
+/** Describes a virtual machine scale set network profile's IP configuration. */
+export type VirtualMachineScaleSetIPConfiguration = SubResource & {
+  /** The IP configuration name. */
+  name: string;
+  /** Specifies the identifier of the subnet. */
+  subnet?: ApiEntityReference;
+  /** Specifies the primary network interface in case the virtual machine has more than 1 network interface. */
+  primary?: boolean;
+  /** The publicIPAddressConfiguration. */
+  publicIPAddressConfiguration?: VirtualMachineScaleSetPublicIPAddressConfiguration;
+  /** Available from Api-Version 2017-03-30 onwards, it represents whether the specific ipconfiguration is IPv4 or IPv6. Default is taken as IPv4.  Possible values are: 'IPv4' and 'IPv6'. */
+  privateIPAddressVersion?: IPVersion;
+  /** Specifies an array of references to backend address pools of application gateways. A scale set can reference backend address pools of multiple application gateways. Multiple scale sets cannot use the same application gateway. */
+  applicationGatewayBackendAddressPools?: SubResource[];
+  /** Specifies an array of references to application security group. */
+  applicationSecurityGroups?: SubResource[];
+  /** Specifies an array of references to backend address pools of load balancers. A scale set can reference backend address pools of one public and one internal load balancer. Multiple scale sets cannot use the same basic sku load balancer. */
+  loadBalancerBackendAddressPools?: SubResource[];
+  /** Specifies an array of references to inbound Nat pools of the load balancers. A scale set can reference inbound nat pools of one public and one internal load balancer. Multiple scale sets cannot use the same basic sku load balancer. */
+  loadBalancerInboundNatPools?: SubResource[];
+};
+
+/** Describes a virtual machine scale set network profile's network configurations. */
+export type VirtualMachineScaleSetNetworkConfiguration = SubResource & {
+  /** The network configuration name. */
+  name: string;
+  /** Specifies the primary network interface in case the virtual machine has more than 1 network interface. */
+  primary?: boolean;
+  /** Specifies whether the network interface is accelerated networking-enabled. */
+  enableAcceleratedNetworking?: boolean;
+  /** Specifies whether the network interface is FPGA networking-enabled. */
+  enableFpga?: boolean;
+  /** The network security group. */
+  networkSecurityGroup?: SubResource;
+  /** The dns settings to be applied on the network interfaces. */
+  dnsSettings?: VirtualMachineScaleSetNetworkConfigurationDnsSettings;
+  /** Specifies the IP configurations of the network interface. */
+  ipConfigurations?: VirtualMachineScaleSetIPConfiguration[];
+  /** Whether IP forwarding enabled on this NIC. */
+  enableIPForwarding?: boolean;
+  /** Specify what happens to the network interface when the VM is deleted */
+  deleteOption?: DeleteOptions;
+};
+
+/** Output of virtual machine capture operation. */
+export type VirtualMachineCaptureResult = SubResource & {
+  /**
+   * the schema of the captured virtual machine
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly schema?: string;
+  /**
+   * the version of the content
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly contentVersion?: string;
+  /**
+   * parameters of the captured virtual machine
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly parameters?: Record<string, unknown>;
+  /**
+   * a list of resource items of the captured virtual machine
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly resources?: Record<string, unknown>[];
+};
+
+/** Describes a virtual machine scale set network profile's IP configuration. NOTE: The subnet of a scale set may be modified as long as the original subnet and the new subnet are in the same virtual network */
+export type VirtualMachineScaleSetUpdateIPConfiguration = SubResource & {
+  /** The IP configuration name. */
+  name?: string;
+  /** The subnet. */
+  subnet?: ApiEntityReference;
+  /** Specifies the primary IP Configuration in case the network interface has more than one IP Configuration. */
+  primary?: boolean;
+  /** The publicIPAddressConfiguration. */
+  publicIPAddressConfiguration?: VirtualMachineScaleSetUpdatePublicIPAddressConfiguration;
+  /** Available from Api-Version 2017-03-30 onwards, it represents whether the specific ipconfiguration is IPv4 or IPv6. Default is taken as IPv4.  Possible values are: 'IPv4' and 'IPv6'. */
+  privateIPAddressVersion?: IPVersion;
+  /** The application gateway backend address pools. */
+  applicationGatewayBackendAddressPools?: SubResource[];
+  /** Specifies an array of references to application security group. */
+  applicationSecurityGroups?: SubResource[];
+  /** The load balancer backend address pools. */
+  loadBalancerBackendAddressPools?: SubResource[];
+  /** The load balancer inbound nat pools. */
+  loadBalancerInboundNatPools?: SubResource[];
+};
+
+/** Describes a virtual machine scale set network profile's network configurations. */
+export type VirtualMachineScaleSetUpdateNetworkConfiguration = SubResource & {
+  /** The network configuration name. */
+  name?: string;
+  /** Whether this is a primary NIC on a virtual machine. */
+  primary?: boolean;
+  /** Specifies whether the network interface is accelerated networking-enabled. */
+  enableAcceleratedNetworking?: boolean;
+  /** Specifies whether the network interface is FPGA networking-enabled. */
+  enableFpga?: boolean;
+  /** The network security group. */
+  networkSecurityGroup?: SubResource;
+  /** The dns settings to be applied on the network interfaces. */
+  dnsSettings?: VirtualMachineScaleSetNetworkConfigurationDnsSettings;
+  /** The virtual machine scale set IP Configuration. */
+  ipConfigurations?: VirtualMachineScaleSetUpdateIPConfiguration[];
+  /** Whether IP forwarding enabled on this NIC. */
+  enableIPForwarding?: boolean;
+  /** Specify what happens to the network interface when the VM is deleted */
+  deleteOption?: DeleteOptions;
+};
+
 /** Specifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Availability sets overview](https://docs.microsoft.com/azure/virtual-machines/availability-set-overview). <br><br> For more information on Azure planned maintenance, see [Maintenance and updates for Virtual Machines in Azure](https://docs.microsoft.com/azure/virtual-machines/maintenance-and-updates) <br><br> Currently, a VM can only be added to availability set at creation time. An existing VM cannot be added to an availability set. */
 export type AvailabilitySet = Resource & {
   /** Sku of the availability set, only name is required to be set. See AvailabilitySetSkuTypes for possible set of values. Use 'Aligned' for virtual machines with managed disks and 'Classic' for virtual machines with unmanaged disks. Default value is 'Classic'. */
@@ -4495,6 +4683,8 @@ export type Disk = Resource & {
   hyperVGeneration?: HyperVGeneration;
   /** Purchase plan information for the the image from which the OS disk was created. E.g. - {name: 2019-Datacenter, publisher: MicrosoftWindowsServer, product: WindowsServer} */
   purchasePlan?: PurchasePlanAutoGenerated;
+  /** List of supported capabilities for the image from which the OS disk was created. */
+  supportedCapabilities?: SupportedCapabilities;
   /** Disk source information. CreationData information cannot be changed after the disk has been created. */
   creationData?: CreationData;
   /** If creationData.createOption is Empty, this field is mandatory and it indicates the size of the disk to create. If this field is present for updates or creation with other options, it indicates a resize. Resizes are only allowed if the disk is not attached to a running VM, and can only increase the disk's size. */
@@ -4555,6 +4745,10 @@ export type Disk = Resource & {
   supportsHibernation?: boolean;
   /** Contains the security related information for the resource. */
   securityProfile?: DiskSecurityProfile;
+  /** Percentage complete for the background copy when a resource is created via the CopyStart operation. */
+  completionPercent?: number;
+  /** Policy for controlling export on the disk. */
+  publicNetworkAccess?: PublicNetworkAccess;
 };
 
 /** Snapshot resource. */
@@ -4579,6 +4773,8 @@ export type Snapshot = Resource & {
   hyperVGeneration?: HyperVGeneration;
   /** Purchase plan information for the image from which the source disk for the snapshot was originally created. */
   purchasePlan?: PurchasePlanAutoGenerated;
+  /** List of supported capabilities (like Accelerated Networking) for the image from which the source disk from the snapshot was originally created. */
+  supportedCapabilities?: SupportedCapabilities;
   /** Disk source information. CreationData information cannot be changed after the disk has been created. */
   creationData?: CreationData;
   /** If creationData.createOption is Empty, this field is mandatory and it indicates the size of the disk to create. If this field is present for updates or creation with other options, it indicates a resize. Resizes are only allowed if the disk is not attached to a running VM, and can only increase the disk's size. */
@@ -4615,6 +4811,10 @@ export type Snapshot = Resource & {
   diskAccessId?: string;
   /** Indicates the OS on a snapshot supports hibernation. */
   supportsHibernation?: boolean;
+  /** Policy for controlling export on the disk. */
+  publicNetworkAccess?: PublicNetworkAccess;
+  /** Percentage complete for the background copy when a resource is created via the CopyStart operation. */
+  completionPercent?: number;
 };
 
 /** disk encryption set resource. */
@@ -4642,10 +4842,17 @@ export type DiskEncryptionSet = Resource & {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly lastKeyRotationTimestamp?: Date;
+  /**
+   * The error that was encountered during auto-key rotation. If an error is present, then auto-key rotation will not be attempted until the error on this disk encryption set is fixed.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly autoKeyRotationError?: ApiError;
 };
 
 /** disk access resource. */
 export type DiskAccess = Resource & {
+  /** The extended location where the disk access will be created. Extended location cannot be changed. */
+  extendedLocation?: ExtendedLocation;
   /**
    * A readonly collection of private endpoint connections created on the disk. Currently only one endpoint connection is supported.
    * NOTE: This property will not be serialized. It can only be populated by the server.
@@ -4763,173 +4970,6 @@ export type GalleryApplicationVersion = Resource & {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly replicationStatus?: ReplicationStatus;
-};
-
-export type SubResourceWithColocationStatus = SubResource & {
-  /** Describes colocation status of a resource in the Proximity Placement Group. */
-  colocationStatus?: InstanceViewStatus;
-};
-
-/** Virtual machine image resource information. */
-export type VirtualMachineImageResource = SubResource & {
-  /** The name of the resource. */
-  name: string;
-  /** The supported Azure location of the resource. */
-  location: string;
-  /** Specifies the tags that are assigned to the virtual machine. For more information about using tags, see [Using tags to organize your Azure resources](https://docs.microsoft.com/azure/azure-resource-manager/resource-group-using-tags.md). */
-  tags?: { [propertyName: string]: string };
-  /** The extended location of the Virtual Machine. */
-  extendedLocation?: ExtendedLocation;
-};
-
-/** Specifies information about the image to use. You can specify information about platform images, marketplace images, or virtual machine images. This element is required when you want to use a platform image, marketplace image, or virtual machine image, but is not used in other creation operations. NOTE: Image reference publisher and offer can only be set when you create the scale set. */
-export type ImageReference = SubResource & {
-  /** The image publisher. */
-  publisher?: string;
-  /** Specifies the offer of the platform image or marketplace image used to create the virtual machine. */
-  offer?: string;
-  /** The image SKU. */
-  sku?: string;
-  /** Specifies the version of the platform image or marketplace image used to create the virtual machine. The allowed formats are Major.Minor.Build or 'latest'. Major, Minor, and Build are decimal numbers. Specify 'latest' to use the latest version of an image available at deploy time. Even if you use 'latest', the VM image will not automatically update after deploy time even if a new version becomes available. */
-  version?: string;
-  /**
-   * Specifies in decimal numbers, the version of platform image or marketplace image used to create the virtual machine. This readonly field differs from 'version', only if the value specified in 'version' field is 'latest'.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly exactVersion?: string;
-  /** Specified the shared gallery image unique id for vm deployment. This can be fetched from shared gallery image GET call. */
-  sharedGalleryImageId?: string;
-};
-
-/** Describes the parameter of customer managed disk encryption set resource id that can be specified for disk. <br><br> NOTE: The disk encryption set resource id can only be specified for managed disk. Please refer https://aka.ms/mdssewithcmkoverview for more details. */
-export type DiskEncryptionSetParameters = SubResource & {};
-
-/** The parameters of a managed disk. */
-export type ManagedDiskParameters = SubResource & {
-  /** Specifies the storage account type for the managed disk. NOTE: UltraSSD_LRS can only be used with data disks, it cannot be used with OS Disk. */
-  storageAccountType?: StorageAccountTypes;
-  /** Specifies the customer managed disk encryption set resource id for the managed disk. */
-  diskEncryptionSet?: DiskEncryptionSetParameters;
-};
-
-/** Describes a network interface reference. */
-export type NetworkInterfaceReference = SubResource & {
-  /** Specifies the primary network interface in case the virtual machine has more than 1 network interface. */
-  primary?: boolean;
-  /** Specify what happens to the network interface when the VM is deleted */
-  deleteOption?: DeleteOptions;
-};
-
-/** Describes a virtual machine scale set network profile's IP configuration. */
-export type VirtualMachineScaleSetIPConfiguration = SubResource & {
-  /** The IP configuration name. */
-  name: string;
-  /** Specifies the identifier of the subnet. */
-  subnet?: ApiEntityReference;
-  /** Specifies the primary network interface in case the virtual machine has more than 1 network interface. */
-  primary?: boolean;
-  /** The publicIPAddressConfiguration. */
-  publicIPAddressConfiguration?: VirtualMachineScaleSetPublicIPAddressConfiguration;
-  /** Available from Api-Version 2017-03-30 onwards, it represents whether the specific ipconfiguration is IPv4 or IPv6. Default is taken as IPv4.  Possible values are: 'IPv4' and 'IPv6'. */
-  privateIPAddressVersion?: IPVersion;
-  /** Specifies an array of references to backend address pools of application gateways. A scale set can reference backend address pools of multiple application gateways. Multiple scale sets cannot use the same application gateway. */
-  applicationGatewayBackendAddressPools?: SubResource[];
-  /** Specifies an array of references to application security group. */
-  applicationSecurityGroups?: SubResource[];
-  /** Specifies an array of references to backend address pools of load balancers. A scale set can reference backend address pools of one public and one internal load balancer. Multiple scale sets cannot use the same basic sku load balancer. */
-  loadBalancerBackendAddressPools?: SubResource[];
-  /** Specifies an array of references to inbound Nat pools of the load balancers. A scale set can reference inbound nat pools of one public and one internal load balancer. Multiple scale sets cannot use the same basic sku load balancer. */
-  loadBalancerInboundNatPools?: SubResource[];
-};
-
-/** Describes a virtual machine scale set network profile's network configurations. */
-export type VirtualMachineScaleSetNetworkConfiguration = SubResource & {
-  /** The network configuration name. */
-  name: string;
-  /** Specifies the primary network interface in case the virtual machine has more than 1 network interface. */
-  primary?: boolean;
-  /** Specifies whether the network interface is accelerated networking-enabled. */
-  enableAcceleratedNetworking?: boolean;
-  /** Specifies whether the network interface is FPGA networking-enabled. */
-  enableFpga?: boolean;
-  /** The network security group. */
-  networkSecurityGroup?: SubResource;
-  /** The dns settings to be applied on the network interfaces. */
-  dnsSettings?: VirtualMachineScaleSetNetworkConfigurationDnsSettings;
-  /** Specifies the IP configurations of the network interface. */
-  ipConfigurations?: VirtualMachineScaleSetIPConfiguration[];
-  /** Whether IP forwarding enabled on this NIC. */
-  enableIPForwarding?: boolean;
-  /** Specify what happens to the network interface when the VM is deleted */
-  deleteOption?: DeleteOptions;
-};
-
-/** Output of virtual machine capture operation. */
-export type VirtualMachineCaptureResult = SubResource & {
-  /**
-   * the schema of the captured virtual machine
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly schema?: string;
-  /**
-   * the version of the content
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly contentVersion?: string;
-  /**
-   * parameters of the captured virtual machine
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly parameters?: Record<string, unknown>;
-  /**
-   * a list of resource items of the captured virtual machine
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly resources?: Record<string, unknown>[];
-};
-
-/** Describes a virtual machine scale set network profile's IP configuration. NOTE: The subnet of a scale set may be modified as long as the original subnet and the new subnet are in the same virtual network */
-export type VirtualMachineScaleSetUpdateIPConfiguration = SubResource & {
-  /** The IP configuration name. */
-  name?: string;
-  /** The subnet. */
-  subnet?: ApiEntityReference;
-  /** Specifies the primary IP Configuration in case the network interface has more than one IP Configuration. */
-  primary?: boolean;
-  /** The publicIPAddressConfiguration. */
-  publicIPAddressConfiguration?: VirtualMachineScaleSetUpdatePublicIPAddressConfiguration;
-  /** Available from Api-Version 2017-03-30 onwards, it represents whether the specific ipconfiguration is IPv4 or IPv6. Default is taken as IPv4.  Possible values are: 'IPv4' and 'IPv6'. */
-  privateIPAddressVersion?: IPVersion;
-  /** The application gateway backend address pools. */
-  applicationGatewayBackendAddressPools?: SubResource[];
-  /** Specifies an array of references to application security group. */
-  applicationSecurityGroups?: SubResource[];
-  /** The load balancer backend address pools. */
-  loadBalancerBackendAddressPools?: SubResource[];
-  /** The load balancer inbound nat pools. */
-  loadBalancerInboundNatPools?: SubResource[];
-};
-
-/** Describes a virtual machine scale set network profile's network configurations. */
-export type VirtualMachineScaleSetUpdateNetworkConfiguration = SubResource & {
-  /** The network configuration name. */
-  name?: string;
-  /** Whether this is a primary NIC on a virtual machine. */
-  primary?: boolean;
-  /** Specifies whether the network interface is accelerated networking-enabled. */
-  enableAcceleratedNetworking?: boolean;
-  /** Specifies whether the network interface is FPGA networking-enabled. */
-  enableFpga?: boolean;
-  /** The network security group. */
-  networkSecurityGroup?: SubResource;
-  /** The dns settings to be applied on the network interfaces. */
-  dnsSettings?: VirtualMachineScaleSetNetworkConfigurationDnsSettings;
-  /** The virtual machine scale set IP Configuration. */
-  ipConfigurations?: VirtualMachineScaleSetUpdateIPConfiguration[];
-  /** Whether IP forwarding enabled on this NIC. */
-  enableIPForwarding?: boolean;
-  /** Specify what happens to the network interface when the VM is deleted */
-  deleteOption?: DeleteOptions;
 };
 
 /** Specifies information about the availability set that the virtual machine should be assigned to. Only tags may be updated. */
@@ -5440,11 +5480,8 @@ export type RestorePoint = ProxyResource & {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly consistencyMode?: ConsistencyModeTypes;
-  /**
-   * Gets the provisioning details set by the server during Create restore point operation.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly provisioningDetails?: RestorePointProvisioningDetails;
+  /** Gets the creation time of the restore point. */
+  timeCreated?: Date;
 };
 
 /** The instance view of a capacity reservation that includes the name of the capacity reservation. It is used for the response to the instance view of a capacity reservation group. */
@@ -5497,6 +5534,8 @@ export type DiskRestorePoint = ProxyOnlyResource & {
   hyperVGeneration?: HyperVGeneration;
   /** Purchase plan information for the the image from which the OS disk was created. */
   purchasePlan?: PurchasePlanAutoGenerated;
+  /** List of supported capabilities (like accelerated networking) for the image from which the OS disk was created. */
+  supportedCapabilities?: SupportedCapabilities;
   /**
    * id of the backing snapshot's MIS family
    * NOTE: This property will not be serialized. It can only be populated by the server.
@@ -5514,6 +5553,14 @@ export type DiskRestorePoint = ProxyOnlyResource & {
   readonly encryption?: Encryption;
   /** Indicates the OS on a disk supports hibernation. */
   supportsHibernation?: boolean;
+  /** Policy for accessing the disk via network. */
+  networkAccessPolicy?: NetworkAccessPolicy;
+  /** Policy for controlling export on the disk. */
+  publicNetworkAccess?: PublicNetworkAccess;
+  /** ARM id of the DiskAccess resource for using private endpoints on disks. */
+  diskAccessId?: string;
+  /** Percentage complete for the background copy when a resource is created via the CopyStart operation. */
+  completionPercent?: number;
 };
 
 /** Specifies information about the Shared Image Gallery that you want to update. */
@@ -5654,6 +5701,39 @@ export type PirSharedGalleryResource = PirResource & {
   uniqueId?: string;
 };
 
+/** Specifies information about the Community Gallery that you want to create or update. */
+export type CommunityGallery = PirCommunityGalleryResource & {};
+
+/** Specifies information about the gallery image definition that you want to create or update. */
+export type CommunityGalleryImage = PirCommunityGalleryResource & {
+  /** This property allows you to specify the type of the OS that is included in the disk when creating a VM from a managed image. <br><br> Possible values are: <br><br> **Windows** <br><br> **Linux** */
+  osType?: OperatingSystemTypes;
+  /** This property allows the user to specify whether the virtual machines created under this image are 'Generalized' or 'Specialized'. */
+  osState?: OperatingSystemStateTypes;
+  /** The end of life date of the gallery image definition. This property can be used for decommissioning purposes. This property is updatable. */
+  endOfLifeDate?: Date;
+  /** This is the gallery image definition identifier. */
+  identifier?: GalleryImageIdentifier;
+  /** The properties describe the recommended machine configuration for this Image Definition. These properties are updatable. */
+  recommended?: RecommendedMachineConfiguration;
+  /** Describes the disallowed disk types. */
+  disallowed?: Disallowed;
+  /** The hypervisor generation of the Virtual Machine. Applicable to OS disks only. */
+  hyperVGeneration?: HyperVGeneration;
+  /** A list of gallery image features. */
+  features?: GalleryImageFeature[];
+  /** Describes the gallery image definition purchase plan. This is used by marketplace images. */
+  purchasePlan?: ImagePurchasePlan;
+};
+
+/** Specifies information about the gallery image version that you want to create or update. */
+export type CommunityGalleryImageVersion = PirCommunityGalleryResource & {
+  /** The published date of the gallery image version Definition. This property can be used for decommissioning purposes. This property is updatable. */
+  publishedDate?: Date;
+  /** The end of life date of the gallery image version Definition. This property can be used for decommissioning purposes. This property is updatable. */
+  endOfLifeDate?: Date;
+};
+
 /** Describes a Virtual Machine Image. */
 export type VirtualMachineImage = VirtualMachineImageResource & {
   /** Used for establishing the purchase context of any 3rd Party artifact through MarketPlace. */
@@ -5725,20 +5805,6 @@ export enum KnownProximityPlacementGroupType {
  */
 export type ProximityPlacementGroupType = string;
 
-/** Known values of {@link ExtendedLocationTypes} that the service accepts. */
-export enum KnownExtendedLocationTypes {
-  EdgeZone = "EdgeZone"
-}
-
-/**
- * Defines values for ExtendedLocationTypes. \
- * {@link KnownExtendedLocationTypes} can be used interchangeably with ExtendedLocationTypes,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **EdgeZone**
- */
-export type ExtendedLocationTypes = string;
-
 /** Known values of {@link HyperVGenerationTypes} that the service accepts. */
 export enum KnownHyperVGenerationTypes {
   V1 = "V1",
@@ -5770,6 +5836,20 @@ export enum KnownVmDiskTypes {
  * **Unmanaged**
  */
 export type VmDiskTypes = string;
+
+/** Known values of {@link ExtendedLocationTypes} that the service accepts. */
+export enum KnownExtendedLocationTypes {
+  EdgeZone = "EdgeZone"
+}
+
+/**
+ * Defines values for ExtendedLocationTypes. \
+ * {@link KnownExtendedLocationTypes} can be used interchangeably with ExtendedLocationTypes,
+ *  this enum contains the known values that the service supports.
+ * ### Known values supported by the service
+ * **EdgeZone**
+ */
+export type ExtendedLocationTypes = string;
 
 /** Known values of {@link VirtualMachineSizeTypes} that the service accepts. */
 export enum KnownVirtualMachineSizeTypes {
@@ -6918,7 +6998,9 @@ export enum KnownDiskCreateOption {
   /** Create a new disk by copying from a backup recovery point. */
   Restore = "Restore",
   /** Create a new disk by obtaining a write token and using it to directly upload the contents of the disk. */
-  Upload = "Upload"
+  Upload = "Upload",
+  /** Create a new disk by using a deep copy process, where the resource creation is considered complete only after all data has been copied from the source. */
+  CopyStart = "CopyStart"
 }
 
 /**
@@ -6932,7 +7014,8 @@ export enum KnownDiskCreateOption {
  * **Import**: Create a disk by importing from a blob specified by a sourceUri in a storage account specified by storageAccountId. \
  * **Copy**: Create a new disk or snapshot by copying from a disk or snapshot specified by the given sourceResourceId. \
  * **Restore**: Create a new disk by copying from a backup recovery point. \
- * **Upload**: Create a new disk by obtaining a write token and using it to directly upload the contents of the disk.
+ * **Upload**: Create a new disk by obtaining a write token and using it to directly upload the contents of the disk. \
+ * **CopyStart**: Create a new disk by using a deep copy process, where the resource creation is considered complete only after all data has been copied from the source.
  */
 export type DiskCreateOption = string;
 
@@ -6940,12 +7023,16 @@ export type DiskCreateOption = string;
 export enum KnownDiskState {
   /** The disk is not being used and can be attached to a VM. */
   Unattached = "Unattached",
-  /** The disk is currently mounted to a running VM. */
+  /** The disk is currently attached to a running VM. */
   Attached = "Attached",
-  /** The disk is mounted to a stopped-deallocated VM */
+  /** The disk is attached to a stopped-deallocated VM. */
   Reserved = "Reserved",
+  /** The disk is attached to a VM which is in hibernated state. */
+  Frozen = "Frozen",
   /** The disk currently has an Active SAS Uri associated with it. */
   ActiveSAS = "ActiveSAS",
+  /** The disk is attached to a VM in hibernated state and has an active SAS URI associated with it. */
+  ActiveSASFrozen = "ActiveSASFrozen",
   /** A disk is ready to be created by upload by requesting a write token. */
   ReadyToUpload = "ReadyToUpload",
   /** A disk is created for upload and a write token has been issued for uploading to it. */
@@ -6958,9 +7045,11 @@ export enum KnownDiskState {
  *  this enum contains the known values that the service supports.
  * ### Known values supported by the service
  * **Unattached**: The disk is not being used and can be attached to a VM. \
- * **Attached**: The disk is currently mounted to a running VM. \
- * **Reserved**: The disk is mounted to a stopped-deallocated VM \
+ * **Attached**: The disk is currently attached to a running VM. \
+ * **Reserved**: The disk is attached to a stopped-deallocated VM. \
+ * **Frozen**: The disk is attached to a VM which is in hibernated state. \
  * **ActiveSAS**: The disk currently has an Active SAS Uri associated with it. \
+ * **ActiveSASFrozen**: The disk is attached to a VM in hibernated state and has an active SAS URI associated with it. \
  * **ReadyToUpload**: A disk is ready to be created by upload by requesting a write token. \
  * **ActiveUpload**: A disk is created for upload and a write token has been issued for uploading to it.
  */
@@ -7022,6 +7111,24 @@ export enum KnownDiskSecurityTypes {
  * **TrustedLaunch**: Trusted Launch provides security features such as secure boot and virtual Trusted Platform Module (vTPM)
  */
 export type DiskSecurityTypes = string;
+
+/** Known values of {@link PublicNetworkAccess} that the service accepts. */
+export enum KnownPublicNetworkAccess {
+  /** You can generate a SAS URI to access the underlying data of the disk publicly on the internet when NetworkAccessPolicy is set to AllowAll. You can access the data via the SAS URI only from your trusted Azure VNET when NetworkAccessPolicy is set to AllowPrivate. */
+  Enabled = "Enabled",
+  /** You cannot access the underlying data of the disk publicly on the internet even when NetworkAccessPolicy is set to AllowAll. You can access the data via the SAS URI only from your trusted Azure VNET when NetworkAccessPolicy is set to AllowPrivate. */
+  Disabled = "Disabled"
+}
+
+/**
+ * Defines values for PublicNetworkAccess. \
+ * {@link KnownPublicNetworkAccess} can be used interchangeably with PublicNetworkAccess,
+ *  this enum contains the known values that the service supports.
+ * ### Known values supported by the service
+ * **Enabled**: You can generate a SAS URI to access the underlying data of the disk publicly on the internet when NetworkAccessPolicy is set to AllowAll. You can access the data via the SAS URI only from your trusted Azure VNET when NetworkAccessPolicy is set to AllowPrivate. \
+ * **Disabled**: You cannot access the underlying data of the disk publicly on the internet even when NetworkAccessPolicy is set to AllowAll. You can access the data via the SAS URI only from your trusted Azure VNET when NetworkAccessPolicy is set to AllowPrivate.
+ */
+export type PublicNetworkAccess = string;
 
 /** Known values of {@link AccessLevel} that the service accepts. */
 export enum KnownAccessLevel {
@@ -7961,18 +8068,17 @@ export interface VirtualMachineImagesEdgeZoneListSkusOptionalParams
 export type VirtualMachineImagesEdgeZoneListSkusResponse = VirtualMachineImageResource[];
 
 /** Optional parameters. */
-export interface UsageOperationsListOptionalParams
-  extends coreClient.OperationOptions {}
+export interface UsageListOptionalParams extends coreClient.OperationOptions {}
 
 /** Contains response data for the list operation. */
-export type UsageOperationsListResponse = ListUsagesResult;
+export type UsageListResponse = ListUsagesResult;
 
 /** Optional parameters. */
-export interface UsageOperationsListNextOptionalParams
+export interface UsageListNextOptionalParams
   extends coreClient.OperationOptions {}
 
 /** Contains response data for the listNext operation. */
-export type UsageOperationsListNextResponse = ListUsagesResult;
+export type UsageListNextResponse = ListUsagesResult;
 
 /** Optional parameters. */
 export interface VirtualMachinesListByLocationOptionalParams
@@ -8020,7 +8126,7 @@ export type VirtualMachinesUpdateResponse = VirtualMachine;
 /** Optional parameters. */
 export interface VirtualMachinesDeleteOptionalParams
   extends coreClient.OperationOptions {
-  /** Optional parameter to force delete virtual machines.(Feature in Preview) */
+  /** Optional parameter to force delete virtual machines. */
   forceDeletion?: boolean;
   /** Delay to wait until next poll, in milliseconds. */
   updateIntervalInMs?: number;
@@ -9659,21 +9765,21 @@ export interface DiskAccessesListPrivateEndpointConnectionsNextOptionalParams
 export type DiskAccessesListPrivateEndpointConnectionsNextResponse = PrivateEndpointConnectionListResult;
 
 /** Optional parameters. */
-export interface DiskRestorePointOperationsGetOptionalParams
+export interface DiskRestorePointGetOptionalParams
   extends coreClient.OperationOptions {}
 
 /** Contains response data for the get operation. */
-export type DiskRestorePointOperationsGetResponse = DiskRestorePoint;
+export type DiskRestorePointGetResponse = DiskRestorePoint;
 
 /** Optional parameters. */
-export interface DiskRestorePointOperationsListByRestorePointOptionalParams
+export interface DiskRestorePointListByRestorePointOptionalParams
   extends coreClient.OperationOptions {}
 
 /** Contains response data for the listByRestorePoint operation. */
-export type DiskRestorePointOperationsListByRestorePointResponse = DiskRestorePointList;
+export type DiskRestorePointListByRestorePointResponse = DiskRestorePointList;
 
 /** Optional parameters. */
-export interface DiskRestorePointOperationsGrantAccessOptionalParams
+export interface DiskRestorePointGrantAccessOptionalParams
   extends coreClient.OperationOptions {
   /** Delay to wait until next poll, in milliseconds. */
   updateIntervalInMs?: number;
@@ -9682,10 +9788,10 @@ export interface DiskRestorePointOperationsGrantAccessOptionalParams
 }
 
 /** Contains response data for the grantAccess operation. */
-export type DiskRestorePointOperationsGrantAccessResponse = AccessUri;
+export type DiskRestorePointGrantAccessResponse = AccessUri;
 
 /** Optional parameters. */
-export interface DiskRestorePointOperationsRevokeAccessOptionalParams
+export interface DiskRestorePointRevokeAccessOptionalParams
   extends coreClient.OperationOptions {
   /** Delay to wait until next poll, in milliseconds. */
   updateIntervalInMs?: number;
@@ -9694,11 +9800,11 @@ export interface DiskRestorePointOperationsRevokeAccessOptionalParams
 }
 
 /** Optional parameters. */
-export interface DiskRestorePointOperationsListByRestorePointNextOptionalParams
+export interface DiskRestorePointListByRestorePointNextOptionalParams
   extends coreClient.OperationOptions {}
 
 /** Contains response data for the listByRestorePointNext operation. */
-export type DiskRestorePointOperationsListByRestorePointNextResponse = DiskRestorePointList;
+export type DiskRestorePointListByRestorePointNextResponse = DiskRestorePointList;
 
 /** Optional parameters. */
 export interface GalleriesCreateOrUpdateOptionalParams
@@ -10085,6 +10191,27 @@ export interface SharedGalleryImageVersionsListNextOptionalParams
 
 /** Contains response data for the listNext operation. */
 export type SharedGalleryImageVersionsListNextResponse = SharedGalleryImageVersionList;
+
+/** Optional parameters. */
+export interface CommunityGalleriesGetOptionalParams
+  extends coreClient.OperationOptions {}
+
+/** Contains response data for the get operation. */
+export type CommunityGalleriesGetResponse = CommunityGallery;
+
+/** Optional parameters. */
+export interface CommunityGalleryImagesGetOptionalParams
+  extends coreClient.OperationOptions {}
+
+/** Contains response data for the get operation. */
+export type CommunityGalleryImagesGetResponse = CommunityGalleryImage;
+
+/** Optional parameters. */
+export interface CommunityGalleryImageVersionsGetOptionalParams
+  extends coreClient.OperationOptions {}
+
+/** Contains response data for the get operation. */
+export type CommunityGalleryImageVersionsGetResponse = CommunityGalleryImageVersion;
 
 /** Optional parameters. */
 export interface CloudServiceRoleInstancesDeleteOptionalParams

@@ -98,7 +98,6 @@ export interface DataPolicyManifestListResult {
 export interface DataPolicyManifests {
     getByPolicyMode(policyMode: string, options?: DataPolicyManifestsGetByPolicyModeOptionalParams): Promise<DataPolicyManifestsGetByPolicyModeResponse>;
     list(options?: DataPolicyManifestsListOptionalParams): PagedAsyncIterableIterator<DataPolicyManifest>;
-    listNext(nextLink: string, options?: DataPolicyManifestsListNextOptionalParams): PagedAsyncIterableIterator<DataPolicyManifest>;
 }
 
 // @public
@@ -107,14 +106,6 @@ export interface DataPolicyManifestsGetByPolicyModeOptionalParams extends coreCl
 
 // @public
 export type DataPolicyManifestsGetByPolicyModeResponse = DataPolicyManifest;
-
-// @public
-export interface DataPolicyManifestsListNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-}
-
-// @public
-export type DataPolicyManifestsListNextNextResponse = DataPolicyManifestListResult;
 
 // @public
 export interface DataPolicyManifestsListNextOptionalParams extends coreClient.OperationOptions {
@@ -158,6 +149,9 @@ export interface Identity {
     readonly principalId?: string;
     readonly tenantId?: string;
     type?: ResourceIdentityType;
+    userAssignedIdentities?: {
+        [propertyName: string]: UserAssignedIdentitiesValue;
+    };
 }
 
 // @public
@@ -280,6 +274,7 @@ export interface PolicyAssignment {
     };
     policyDefinitionId?: string;
     readonly scope?: string;
+    readonly systemData?: SystemData;
     readonly type?: string;
 }
 
@@ -299,12 +294,10 @@ export interface PolicyAssignments {
     getById(policyAssignmentId: string, options?: PolicyAssignmentsGetByIdOptionalParams): Promise<PolicyAssignmentsGetByIdResponse>;
     list(options?: PolicyAssignmentsListOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
     listForManagementGroup(managementGroupId: string, options?: PolicyAssignmentsListForManagementGroupOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
-    listForManagementGroupNext(managementGroupId: string, nextLink: string, options?: PolicyAssignmentsListForManagementGroupNextOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
     listForResource(resourceGroupName: string, resourceProviderNamespace: string, parentResourcePath: string, resourceType: string, resourceName: string, options?: PolicyAssignmentsListForResourceOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
     listForResourceGroup(resourceGroupName: string, options?: PolicyAssignmentsListForResourceGroupOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
-    listForResourceGroupNext(resourceGroupName: string, nextLink: string, options?: PolicyAssignmentsListForResourceGroupNextOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
-    listForResourceNext(resourceGroupName: string, resourceProviderNamespace: string, parentResourcePath: string, resourceType: string, resourceName: string, nextLink: string, options?: PolicyAssignmentsListForResourceNextOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
-    listNext(nextLink: string, options?: PolicyAssignmentsListNextOptionalParams): PagedAsyncIterableIterator<PolicyAssignment>;
+    update(scope: string, policyAssignmentName: string, parameters: PolicyAssignmentUpdate, options?: PolicyAssignmentsUpdateOptionalParams): Promise<PolicyAssignmentsUpdateResponse>;
+    updateById(policyAssignmentId: string, parameters: PolicyAssignmentUpdate, options?: PolicyAssignmentsUpdateByIdOptionalParams): Promise<PolicyAssignmentsUpdateByIdResponse>;
 }
 
 // @public
@@ -350,15 +343,6 @@ export interface PolicyAssignmentsGetOptionalParams extends coreClient.Operation
 export type PolicyAssignmentsGetResponse = PolicyAssignment;
 
 // @public
-export interface PolicyAssignmentsListForManagementGroupNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyAssignmentsListForManagementGroupNextNextResponse = PolicyAssignmentListResult;
-
-// @public
 export interface PolicyAssignmentsListForManagementGroupNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
     top?: number;
@@ -375,15 +359,6 @@ export interface PolicyAssignmentsListForManagementGroupOptionalParams extends c
 
 // @public
 export type PolicyAssignmentsListForManagementGroupResponse = PolicyAssignmentListResult;
-
-// @public
-export interface PolicyAssignmentsListForResourceGroupNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyAssignmentsListForResourceGroupNextNextResponse = PolicyAssignmentListResult;
 
 // @public
 export interface PolicyAssignmentsListForResourceGroupNextOptionalParams extends coreClient.OperationOptions {
@@ -404,15 +379,6 @@ export interface PolicyAssignmentsListForResourceGroupOptionalParams extends cor
 export type PolicyAssignmentsListForResourceGroupResponse = PolicyAssignmentListResult;
 
 // @public
-export interface PolicyAssignmentsListForResourceNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyAssignmentsListForResourceNextNextResponse = PolicyAssignmentListResult;
-
-// @public
 export interface PolicyAssignmentsListForResourceNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
     top?: number;
@@ -429,15 +395,6 @@ export interface PolicyAssignmentsListForResourceOptionalParams extends coreClie
 
 // @public
 export type PolicyAssignmentsListForResourceResponse = PolicyAssignmentListResult;
-
-// @public
-export interface PolicyAssignmentsListNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyAssignmentsListNextNextResponse = PolicyAssignmentListResult;
 
 // @public
 export interface PolicyAssignmentsListNextOptionalParams extends coreClient.OperationOptions {
@@ -457,8 +414,30 @@ export interface PolicyAssignmentsListOptionalParams extends coreClient.Operatio
 // @public
 export type PolicyAssignmentsListResponse = PolicyAssignmentListResult;
 
+// @public
+export interface PolicyAssignmentsUpdateByIdOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type PolicyAssignmentsUpdateByIdResponse = PolicyAssignment;
+
+// @public
+export interface PolicyAssignmentsUpdateOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type PolicyAssignmentsUpdateResponse = PolicyAssignment;
+
 // @public (undocumented)
-export class PolicyClient extends PolicyClientContext {
+export interface PolicyAssignmentUpdate {
+    identity?: Identity;
+    location?: string;
+}
+
+// @public (undocumented)
+export class PolicyClient extends coreClient.ServiceClient {
+    // (undocumented)
+    $host: string;
     constructor(credentials: coreAuth.TokenCredential, subscriptionId: string, options?: PolicyClientOptionalParams);
     // (undocumented)
     dataPolicyManifests: DataPolicyManifests;
@@ -470,13 +449,6 @@ export class PolicyClient extends PolicyClientContext {
     policyExemptions: PolicyExemptions;
     // (undocumented)
     policySetDefinitions: PolicySetDefinitions;
-}
-
-// @public (undocumented)
-export class PolicyClientContext extends coreClient.ServiceClient {
-    // (undocumented)
-    $host: string;
-    constructor(credentials: coreAuth.TokenCredential, subscriptionId: string, options?: PolicyClientOptionalParams);
     // (undocumented)
     subscriptionId: string;
 }
@@ -500,6 +472,7 @@ export interface PolicyDefinition {
     };
     policyRule?: Record<string, unknown>;
     policyType?: PolicyType;
+    readonly systemData?: SystemData;
     readonly type?: string;
 }
 
@@ -539,10 +512,7 @@ export interface PolicyDefinitions {
     getBuiltIn(policyDefinitionName: string, options?: PolicyDefinitionsGetBuiltInOptionalParams): Promise<PolicyDefinitionsGetBuiltInResponse>;
     list(options?: PolicyDefinitionsListOptionalParams): PagedAsyncIterableIterator<PolicyDefinition>;
     listBuiltIn(options?: PolicyDefinitionsListBuiltInOptionalParams): PagedAsyncIterableIterator<PolicyDefinition>;
-    listBuiltInNext(nextLink: string, options?: PolicyDefinitionsListBuiltInNextOptionalParams): PagedAsyncIterableIterator<PolicyDefinition>;
     listByManagementGroup(managementGroupId: string, options?: PolicyDefinitionsListByManagementGroupOptionalParams): PagedAsyncIterableIterator<PolicyDefinition>;
-    listByManagementGroupNext(managementGroupId: string, nextLink: string, options?: PolicyDefinitionsListByManagementGroupNextOptionalParams): PagedAsyncIterableIterator<PolicyDefinition>;
-    listNext(nextLink: string, options?: PolicyDefinitionsListNextOptionalParams): PagedAsyncIterableIterator<PolicyDefinition>;
 }
 
 // @public
@@ -589,15 +559,6 @@ export interface PolicyDefinitionsGetOptionalParams extends coreClient.Operation
 export type PolicyDefinitionsGetResponse = PolicyDefinition;
 
 // @public
-export interface PolicyDefinitionsListBuiltInNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyDefinitionsListBuiltInNextNextResponse = PolicyDefinitionListResult;
-
-// @public
 export interface PolicyDefinitionsListBuiltInNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
     top?: number;
@@ -616,15 +577,6 @@ export interface PolicyDefinitionsListBuiltInOptionalParams extends coreClient.O
 export type PolicyDefinitionsListBuiltInResponse = PolicyDefinitionListResult;
 
 // @public
-export interface PolicyDefinitionsListByManagementGroupNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyDefinitionsListByManagementGroupNextNextResponse = PolicyDefinitionListResult;
-
-// @public
 export interface PolicyDefinitionsListByManagementGroupNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
     top?: number;
@@ -641,15 +593,6 @@ export interface PolicyDefinitionsListByManagementGroupOptionalParams extends co
 
 // @public
 export type PolicyDefinitionsListByManagementGroupResponse = PolicyDefinitionListResult;
-
-// @public
-export interface PolicyDefinitionsListNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicyDefinitionsListNextNextResponse = PolicyDefinitionListResult;
 
 // @public
 export interface PolicyDefinitionsListNextOptionalParams extends coreClient.OperationOptions {
@@ -697,12 +640,8 @@ export interface PolicyExemptions {
     get(scope: string, policyExemptionName: string, options?: PolicyExemptionsGetOptionalParams): Promise<PolicyExemptionsGetResponse>;
     list(options?: PolicyExemptionsListOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
     listForManagementGroup(managementGroupId: string, options?: PolicyExemptionsListForManagementGroupOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
-    listForManagementGroupNext(managementGroupId: string, nextLink: string, options?: PolicyExemptionsListForManagementGroupNextOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
     listForResource(resourceGroupName: string, resourceProviderNamespace: string, parentResourcePath: string, resourceType: string, resourceName: string, options?: PolicyExemptionsListForResourceOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
     listForResourceGroup(resourceGroupName: string, options?: PolicyExemptionsListForResourceGroupOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
-    listForResourceGroupNext(resourceGroupName: string, nextLink: string, options?: PolicyExemptionsListForResourceGroupNextOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
-    listForResourceNext(resourceGroupName: string, resourceProviderNamespace: string, parentResourcePath: string, resourceType: string, resourceName: string, nextLink: string, options?: PolicyExemptionsListForResourceNextOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
-    listNext(nextLink: string, options?: PolicyExemptionsListNextOptionalParams): PagedAsyncIterableIterator<PolicyExemption>;
 }
 
 // @public
@@ -724,14 +663,6 @@ export interface PolicyExemptionsGetOptionalParams extends coreClient.OperationO
 export type PolicyExemptionsGetResponse = PolicyExemption;
 
 // @public
-export interface PolicyExemptionsListForManagementGroupNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-}
-
-// @public
-export type PolicyExemptionsListForManagementGroupNextNextResponse = PolicyExemptionListResult;
-
-// @public
 export interface PolicyExemptionsListForManagementGroupNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
 }
@@ -746,14 +677,6 @@ export interface PolicyExemptionsListForManagementGroupOptionalParams extends co
 
 // @public
 export type PolicyExemptionsListForManagementGroupResponse = PolicyExemptionListResult;
-
-// @public
-export interface PolicyExemptionsListForResourceGroupNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-}
-
-// @public
-export type PolicyExemptionsListForResourceGroupNextNextResponse = PolicyExemptionListResult;
 
 // @public
 export interface PolicyExemptionsListForResourceGroupNextOptionalParams extends coreClient.OperationOptions {
@@ -772,14 +695,6 @@ export interface PolicyExemptionsListForResourceGroupOptionalParams extends core
 export type PolicyExemptionsListForResourceGroupResponse = PolicyExemptionListResult;
 
 // @public
-export interface PolicyExemptionsListForResourceNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-}
-
-// @public
-export type PolicyExemptionsListForResourceNextNextResponse = PolicyExemptionListResult;
-
-// @public
 export interface PolicyExemptionsListForResourceNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
 }
@@ -794,14 +709,6 @@ export interface PolicyExemptionsListForResourceOptionalParams extends coreClien
 
 // @public
 export type PolicyExemptionsListForResourceResponse = PolicyExemptionListResult;
-
-// @public
-export interface PolicyExemptionsListNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-}
-
-// @public
-export type PolicyExemptionsListNextNextResponse = PolicyExemptionListResult;
 
 // @public
 export interface PolicyExemptionsListNextOptionalParams extends coreClient.OperationOptions {
@@ -832,6 +739,7 @@ export interface PolicySetDefinition {
     policyDefinitionGroups?: PolicyDefinitionGroup[];
     policyDefinitions?: PolicyDefinitionReference[];
     policyType?: PolicyType;
+    readonly systemData?: SystemData;
     readonly type?: string;
 }
 
@@ -852,10 +760,7 @@ export interface PolicySetDefinitions {
     getBuiltIn(policySetDefinitionName: string, options?: PolicySetDefinitionsGetBuiltInOptionalParams): Promise<PolicySetDefinitionsGetBuiltInResponse>;
     list(options?: PolicySetDefinitionsListOptionalParams): PagedAsyncIterableIterator<PolicySetDefinition>;
     listBuiltIn(options?: PolicySetDefinitionsListBuiltInOptionalParams): PagedAsyncIterableIterator<PolicySetDefinition>;
-    listBuiltInNext(nextLink: string, options?: PolicySetDefinitionsListBuiltInNextOptionalParams): PagedAsyncIterableIterator<PolicySetDefinition>;
     listByManagementGroup(managementGroupId: string, options?: PolicySetDefinitionsListByManagementGroupOptionalParams): PagedAsyncIterableIterator<PolicySetDefinition>;
-    listByManagementGroupNext(managementGroupId: string, nextLink: string, options?: PolicySetDefinitionsListByManagementGroupNextOptionalParams): PagedAsyncIterableIterator<PolicySetDefinition>;
-    listNext(nextLink: string, options?: PolicySetDefinitionsListNextOptionalParams): PagedAsyncIterableIterator<PolicySetDefinition>;
 }
 
 // @public
@@ -902,15 +807,6 @@ export interface PolicySetDefinitionsGetOptionalParams extends coreClient.Operat
 export type PolicySetDefinitionsGetResponse = PolicySetDefinition;
 
 // @public
-export interface PolicySetDefinitionsListBuiltInNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicySetDefinitionsListBuiltInNextNextResponse = PolicySetDefinitionListResult;
-
-// @public
 export interface PolicySetDefinitionsListBuiltInNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
     top?: number;
@@ -929,15 +825,6 @@ export interface PolicySetDefinitionsListBuiltInOptionalParams extends coreClien
 export type PolicySetDefinitionsListBuiltInResponse = PolicySetDefinitionListResult;
 
 // @public
-export interface PolicySetDefinitionsListByManagementGroupNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicySetDefinitionsListByManagementGroupNextNextResponse = PolicySetDefinitionListResult;
-
-// @public
 export interface PolicySetDefinitionsListByManagementGroupNextOptionalParams extends coreClient.OperationOptions {
     filter?: string;
     top?: number;
@@ -954,15 +841,6 @@ export interface PolicySetDefinitionsListByManagementGroupOptionalParams extends
 
 // @public
 export type PolicySetDefinitionsListByManagementGroupResponse = PolicySetDefinitionListResult;
-
-// @public
-export interface PolicySetDefinitionsListNextNextOptionalParams extends coreClient.OperationOptions {
-    filter?: string;
-    top?: number;
-}
-
-// @public
-export type PolicySetDefinitionsListNextNextResponse = PolicySetDefinitionListResult;
 
 // @public
 export interface PolicySetDefinitionsListNextOptionalParams extends coreClient.OperationOptions {
@@ -986,7 +864,7 @@ export type PolicySetDefinitionsListResponse = PolicySetDefinitionListResult;
 export type PolicyType = string;
 
 // @public
-export type ResourceIdentityType = "SystemAssigned" | "None";
+export type ResourceIdentityType = "SystemAssigned" | "UserAssigned" | "None";
 
 // @public
 export interface ResourceTypeAliases {
@@ -1004,6 +882,11 @@ export interface SystemData {
     lastModifiedByType?: CreatedByType;
 }
 
+// @public (undocumented)
+export interface UserAssignedIdentitiesValue {
+    readonly clientId?: string;
+    readonly principalId?: string;
+}
 
 // (No @packageDocumentation comment for this package)
 

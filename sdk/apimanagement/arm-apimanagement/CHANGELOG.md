@@ -1,16 +1,13 @@
-## Release History
+# Release History
 
-### 30.0.0-beta.2 (Unreleased)
+## 8.0.0-beta.2 (2021-11-17)
+    
+**Features**
 
-#### Features Added
+  - Added Interface PerformConnectivityCheckAsyncOptionalParams
+  - Added Type Alias PerformConnectivityCheckAsyncResponse
 
-#### Breaking Changes
-
-#### Bugs Fixed
-
-#### Other Changes
-
-### 30.0.0-beta.1 (2021-09-24)
+## 8.0.0-beta.1 (2021-10-09)
 
 This is the first preview for the new version of the `@azure/arm-apimanagement` package that follows the new [guidelines for TypeScript SDKs](https://azure.github.io/azure-sdk/typescript_introduction.html) for Azure services.
 

@@ -6,6 +6,7 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
+import * as coreClient from "@azure/core-client";
 import * as coreAuth from "@azure/core-auth";
 import {
   OperationsImpl,
@@ -49,6 +50,9 @@ import {
   SharedGalleriesImpl,
   SharedGalleryImagesImpl,
   SharedGalleryImageVersionsImpl,
+  CommunityGalleriesImpl,
+  CommunityGalleryImagesImpl,
+  CommunityGalleryImageVersionsImpl,
   CloudServiceRoleInstancesImpl,
   CloudServiceRolesImpl,
   CloudServicesImpl,
@@ -97,16 +101,21 @@ import {
   SharedGalleries,
   SharedGalleryImages,
   SharedGalleryImageVersions,
+  CommunityGalleries,
+  CommunityGalleryImages,
+  CommunityGalleryImageVersions,
   CloudServiceRoleInstances,
   CloudServiceRoles,
   CloudServices,
   CloudServicesUpdateDomain,
   CloudServiceOperatingSystems
 } from "./operationsInterfaces";
-import { ComputeManagementClientContext } from "./computeManagementClientContext";
 import { ComputeManagementClientOptionalParams } from "./models";
 
-export class ComputeManagementClient extends ComputeManagementClientContext {
+export class ComputeManagementClient extends coreClient.ServiceClient {
+  $host: string;
+  subscriptionId: string;
+
   /**
    * Initializes a new instance of the ComputeManagementClient class.
    * @param credentials Subscription credentials which uniquely identify client subscription.
@@ -119,7 +128,45 @@ export class ComputeManagementClient extends ComputeManagementClientContext {
     subscriptionId: string,
     options?: ComputeManagementClientOptionalParams
   ) {
-    super(credentials, subscriptionId, options);
+    if (credentials === undefined) {
+      throw new Error("'credentials' cannot be null");
+    }
+    if (subscriptionId === undefined) {
+      throw new Error("'subscriptionId' cannot be null");
+    }
+
+    // Initializing default values for options
+    if (!options) {
+      options = {};
+    }
+    const defaults: ComputeManagementClientOptionalParams = {
+      requestContentType: "application/json; charset=utf-8",
+      credential: credentials
+    };
+
+    const packageDetails = `azsdk-js-arm-compute/17.0.0`;
+    const userAgentPrefix =
+      options.userAgentOptions && options.userAgentOptions.userAgentPrefix
+        ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
+        : `${packageDetails}`;
+
+    if (!options.credentialScopes) {
+      options.credentialScopes = ["https://management.azure.com/.default"];
+    }
+    const optionsWithDefaults = {
+      ...defaults,
+      ...options,
+      userAgentOptions: {
+        userAgentPrefix
+      },
+      baseUri: options.endpoint || "https://management.azure.com"
+    };
+    super(optionsWithDefaults);
+    // Parameter assignments
+    this.subscriptionId = subscriptionId;
+
+    // Assigning values to Constant parameters
+    this.$host = options.$host || "https://management.azure.com";
     this.operations = new OperationsImpl(this);
     this.availabilitySets = new AvailabilitySetsImpl(this);
     this.proximityPlacementGroups = new ProximityPlacementGroupsImpl(this);
@@ -173,6 +220,11 @@ export class ComputeManagementClient extends ComputeManagementClientContext {
     this.sharedGalleries = new SharedGalleriesImpl(this);
     this.sharedGalleryImages = new SharedGalleryImagesImpl(this);
     this.sharedGalleryImageVersions = new SharedGalleryImageVersionsImpl(this);
+    this.communityGalleries = new CommunityGalleriesImpl(this);
+    this.communityGalleryImages = new CommunityGalleryImagesImpl(this);
+    this.communityGalleryImageVersions = new CommunityGalleryImageVersionsImpl(
+      this
+    );
     this.cloudServiceRoleInstances = new CloudServiceRoleInstancesImpl(this);
     this.cloudServiceRoles = new CloudServiceRolesImpl(this);
     this.cloudServices = new CloudServicesImpl(this);
@@ -223,6 +275,9 @@ export class ComputeManagementClient extends ComputeManagementClientContext {
   sharedGalleries: SharedGalleries;
   sharedGalleryImages: SharedGalleryImages;
   sharedGalleryImageVersions: SharedGalleryImageVersions;
+  communityGalleries: CommunityGalleries;
+  communityGalleryImages: CommunityGalleryImages;
+  communityGalleryImageVersions: CommunityGalleryImageVersions;
   cloudServiceRoleInstances: CloudServiceRoleInstances;
   cloudServiceRoles: CloudServiceRoles;
   cloudServices: CloudServices;
