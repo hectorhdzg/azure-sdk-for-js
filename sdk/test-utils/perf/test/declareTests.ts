@@ -9,7 +9,9 @@ import { Exception } from "./exception.spec";
 import { PerfPolicyTest } from "./perfPolicy.spec";
 import { SleepTest } from "./sleep.spec";
 import { NodeFetchTest } from "./nodeFetch.spec";
-
+import { MockReceiverTest } from "./batch/mockReceiverTest.spec";
+import { MockEventReceiverTest } from "./event/mockEventReceiverTest.spec";
+import { MockEventHubConsumerClientTest } from "./event/mockEventHubConsumerClientTest.spec";
 import { PerfTestConstructor } from "../src";
 
 type NormalizedTestDefinition = { testClass: PerfTestConstructor; options?: string };
@@ -29,12 +31,15 @@ const tests: TestDefinition[] = [
   NodeFetchTest,
   {
     testClass: OptionsTest,
-    options: "--req some-string"
+    options: "--req some-string",
   },
   {
     testClass: PerfPolicyTest,
-    options: "--url http://bing.com/"
-  }
+    options: "--url http://bing.com/",
+  },
+  MockReceiverTest,
+  MockEventReceiverTest,
+  MockEventHubConsumerClientTest,
 ];
 
 // Normalize everything in the array above for export.

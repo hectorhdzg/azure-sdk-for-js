@@ -10,12 +10,12 @@ export {
   EventGridPublisherClientOptions,
   SendOptions,
   InputSchema,
-  InputSchemaToInputTypeMap
+  InputSchemaToInputTypeMap,
 } from "./eventGridClient";
 
 export {
   generateSharedAccessSignature,
-  GenerateSharedAccessSignatureOptions
+  GenerateSharedAccessSignatureOptions,
 } from "./generateSharedAccessSignature";
 
 export { EventGridDeserializer } from "./consumer";
@@ -85,6 +85,10 @@ export {
   DeviceTwinInfo,
   DeviceTwinInfoProperties,
   DeviceTwinInfoX509Thumbprint,
+  HealthcareFhirResourceCreatedEventData,
+  HealthcareFhirResourceUpdatedEventData,
+  HealthcareFhirResourceDeletedEventData,
+  HealthcareFhirResourceType,
   IotHubDeviceCreatedEventData,
   IotHubDeviceDeletedEventData,
   IotHubDeviceConnectedEventData,
@@ -203,5 +207,11 @@ export {
   PolicyInsightsPolicyStateDeletedEventData,
   StorageAsyncOperationInitiatedEventData,
   StorageBlobTierChangedEventData,
-  StorageBlobInventoryPolicyCompletedEventData
+  StorageBlobInventoryPolicyCompletedEventData,
+  RecordingChannelType,
+  RecordingContentType,
+  RecordingFormatType,
+  ResourceAuthorization,
+  ResourceHttpRequest,
+  ContainerRegistryEventConnectedRegistry,
 } from "./generated/models";

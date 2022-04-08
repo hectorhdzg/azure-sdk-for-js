@@ -1,5 +1,5 @@
 {
-  "name": "azure-event-hubs-samples-ts",
+  "name": "@azure-samples/event-hubs-ts",
   "private": true,
   "version": "1.0.0",
   "description": "Azure Event Hubs client library samples for TypeScript",
@@ -32,7 +32,7 @@
     "@azure/event-hubs": "next",
     "dotenv": "latest",
     "rhea-promise": "^2.1.0",
-    "ws": "^7.1.1",
+    "ws": "^8.2.0",
     "@azure/identity": "^2.0.1",
     "https-proxy-agent": "^5.0.0"
   },

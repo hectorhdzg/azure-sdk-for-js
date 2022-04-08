@@ -2,21 +2,21 @@
 // Licensed under the MIT license.
 import {
   // getLongRunningPoller,
-  PurviewCatalogRestClient,
+  PurviewCatalogClient,
 } from "../../src";
 import { Recorder } from "@azure-tools/test-recorder";
 
 import { assert } from "chai";
-import { createClient, createRecorder } from "./utils/recordedClient";
+import { createClient } from "./utils/recordedClient";
 import { Context } from "mocha";
 
 describe("purview catalog test", () => {
   let recorder: Recorder;
-  let client: PurviewCatalogRestClient;
+  let client: PurviewCatalogClient;
 
-  beforeEach(function (this: Context) {
-    recorder = createRecorder(this);
-    client = createClient();
+  beforeEach(async function (this: Context) {
+    recorder = new Recorder(this.currentTest);
+    client = await createClient(recorder);
   });
 
   afterEach(async function () {

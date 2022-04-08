@@ -9,7 +9,8 @@ import { isNode } from "@azure/core-util";
 import {
   createHttpHeaders,
   createPipelineRequest,
-  PipelineRequest
+  PipelineRequest,
+  PipelineResponse,
 } from "@azure/core-rest-pipeline";
 import { AbortController, AbortSignalLike } from "@azure/abort-controller";
 import { AuthenticationError, AuthenticationErrorName } from "../errors";
@@ -75,10 +76,11 @@ export function getIdentityClientAuthorityHost(options?: TokenCredentialOptions)
  */
 export class IdentityClient extends ServiceClient implements INetworkModule {
   public authorityHost: string;
+  private allowLoggingAccountIdentifiers?: boolean;
   private abortControllers: Map<string, AbortController[] | undefined>;
 
   constructor(options?: TokenCredentialOptions) {
-    const packageDetails = `azsdk-js-identity/2.0.2`;
+    const packageDetails = `azsdk-js-identity/2.1.0-beta.2`;
     const userAgentPrefix = options?.userAgentOptions?.userAgentPrefix
       ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
       : `${packageDetails}`;
@@ -90,15 +92,19 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
 
     super({
       requestContentType: "application/json; charset=utf-8",
+      retryOptions: {
+        maxRetries: 3,
+      },
       ...options,
       userAgentOptions: {
-        userAgentPrefix
+        userAgentPrefix,
       },
-      baseUri
+      baseUri,
     });
 
     this.authorityHost = baseUri;
     this.abortControllers = new Map();
+    this.allowLoggingAccountIdentifiers = options?.loggingOptions?.allowLoggingAccountIdentifiers;
   }
 
   async sendTokenRequest(
@@ -121,12 +127,14 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
         return null;
       }
 
+      this.logIdentifiers(response);
+
       const token = {
         accessToken: {
           token: parsedBody.access_token,
-          expiresOnTimestamp: expiresOnParser(parsedBody)
+          expiresOnTimestamp: expiresOnParser(parsedBody),
         },
-        refreshToken: parsedBody.refresh_token
+        refreshToken: parsedBody.refresh_token,
       };
 
       logger.info(
@@ -164,7 +172,7 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
       grant_type: "refresh_token",
       client_id: clientId,
       refresh_token: refreshToken,
-      scope: scopes
+      scope: scopes,
     };
 
     if (clientSecret !== undefined) {
@@ -182,9 +190,9 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
         abortSignal: options && options.abortSignal,
         headers: createHttpHeaders({
           Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded"
+          "Content-Type": "application/x-www-form-urlencoded",
         }),
-        tracingOptions: updatedOptions?.tracingOptions
+        tracingOptions: updatedOptions?.tracingOptions,
       });
 
       const response = await this.sendTokenRequest(request, expiresOnParser);
@@ -201,7 +209,7 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
         logger.info(`IdentityClient: interaction required for client ID: ${clientId}`);
         span.setStatus({
           code: SpanStatusCode.ERROR,
-          message: err.message
+          message: err.message,
         });
 
         return null;
@@ -211,7 +219,7 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
         );
         span.setStatus({
           code: SpanStatusCode.ERROR,
-          message: err.message
+          message: err.message,
         });
         throw err;
       }
@@ -243,7 +251,7 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
     const controllers = [
       ...(this.abortControllers.get(key) || []),
       // MSAL passes no correlation ID to the get requests...
-      ...(this.abortControllers.get(noCorrelationId) || [])
+      ...(this.abortControllers.get(noCorrelationId) || []),
     ];
     if (!controllers.length) {
       return;
@@ -273,14 +281,17 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
       method: "GET",
       body: options?.body,
       headers: createHttpHeaders(options?.headers),
-      abortSignal: this.generateAbortSignal(noCorrelationId)
+      abortSignal: this.generateAbortSignal(noCorrelationId),
     });
 
     const response = await this.sendRequest(request);
+
+    this.logIdentifiers(response);
+
     return {
       body: response.bodyAsText ? JSON.parse(response.bodyAsText) : undefined,
       headers: response.headers.toJSON(),
-      status: response.status
+      status: response.status,
     };
   }
 
@@ -294,14 +305,59 @@ export class IdentityClient extends ServiceClient implements INetworkModule {
       body: options?.body,
       headers: createHttpHeaders(options?.headers),
       // MSAL doesn't send the correlation ID on the get requests.
-      abortSignal: this.generateAbortSignal(this.getCorrelationId(options))
+      abortSignal: this.generateAbortSignal(this.getCorrelationId(options)),
     });
 
     const response = await this.sendRequest(request);
+
+    this.logIdentifiers(response);
+
     return {
       body: response.bodyAsText ? JSON.parse(response.bodyAsText) : undefined,
       headers: response.headers.toJSON(),
-      status: response.status
+      status: response.status,
     };
+  }
+
+  /**
+   * If allowLoggingAccountIdentifiers was set on the constructor options
+   * we try to log the account identifiers by parsing the received access token.
+   *
+   * The account identifiers we try to log are:
+   * - `appid`: The application or Client Identifier.
+   * - `upn`: User Principal Name.
+   *   - It might not be available in some authentication scenarios.
+   *   - If it's not available, we put a placeholder: "No User Principal Name available".
+   * - `tid`: Tenant Identifier.
+   * - `oid`: Object Identifier of the authenticated user.
+   */
+  private logIdentifiers(response: PipelineResponse): void {
+    if (!this.allowLoggingAccountIdentifiers || !response.bodyAsText) {
+      return;
+    }
+    const unavailableUpn = "No User Principal Name available";
+    try {
+      const parsed = (response as any).parsedBody || JSON.parse(response.bodyAsText);
+      const accessToken = parsed.access_token;
+      if (!accessToken) {
+        // Without an access token allowLoggingAccountIdentifiers isn't useful.
+        return;
+      }
+      const base64Metadata = accessToken.split(".")[1];
+      const { appid, upn, tid, oid } = JSON.parse(
+        Buffer.from(base64Metadata, "base64").toString("utf8")
+      );
+
+      logger.info(
+        `[Authenticated account] Client ID: ${appid}. Tenant ID: ${tid}. User Principal Name: ${
+          upn || unavailableUpn
+        }. Object ID (user): ${oid}`
+      );
+    } catch (e) {
+      logger.warning(
+        "allowLoggingAccountIdentifiers was set, but we couldn't log the account information. Error:",
+        e.message
+      );
+    }
   }
 }

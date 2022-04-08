@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { OperationOptions } from "@azure/core-http";
+import { OperationOptions } from "@azure/core-client";
 import { ShortCodesGetShortCodesOptionalParams } from ".";
 
 /**
@@ -53,5 +53,5 @@ export {
   MessageContentCategory,
   MessageExampleSequence,
   MessageExample,
-  MessageDirection
+  MessageDirection,
 } from "./generated/src/models/";

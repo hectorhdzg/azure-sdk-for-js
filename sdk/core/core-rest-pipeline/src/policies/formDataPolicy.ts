@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import FormData from "form-data";
-import { PipelineResponse, PipelineRequest, SendRequest, FormDataMap } from "../interfaces";
+import { FormDataMap, PipelineRequest, PipelineResponse, SendRequest } from "../interfaces";
 import { PipelinePolicy } from "../pipeline";
 
 /**
@@ -27,7 +27,7 @@ export function formDataPolicy(): PipelinePolicy {
         }
       }
       return next(request);
-    }
+    },
   };
 }
 

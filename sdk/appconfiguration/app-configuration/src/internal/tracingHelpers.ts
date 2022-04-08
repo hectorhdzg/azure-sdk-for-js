@@ -3,14 +3,15 @@
 
 import { Span, SpanStatusCode } from "@azure/core-tracing";
 
-import { RestError, OperationOptions } from "@azure/core-http";
+import { RestError } from "@azure/core-rest-pipeline";
 import { createSpanFunction } from "@azure/core-tracing";
 import { AppConfigurationClient } from "../appConfigurationClient";
+import { OperationOptions } from "@azure/core-client";
 
 /** @internal */
 export const createSpan = createSpanFunction({
   namespace: "Microsoft.AppConfiguration",
-  packagePrefix: "Azure.Data.AppConfiguration"
+  packagePrefix: "Azure.Data.AppConfiguration",
 });
 
 /**
@@ -36,13 +37,13 @@ export async function trace<ReturnT>(
     const result = await fn(updatedOptions, span);
 
     span.setStatus({
-      code: SpanStatusCode.OK
+      code: SpanStatusCode.OK,
     });
     return result;
   } catch (err) {
     span.setStatus({
       code: SpanStatusCode.ERROR,
-      message: err.message
+      message: (err as { message: string }).message,
     });
     throw err;
   } finally {

@@ -1,18 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-/// <reference lib="dom" />
-
 import { AbortError } from "@azure/abort-controller";
 import {
   HttpClient,
   PipelineRequest,
   PipelineResponse,
   TransferProgressEvent,
-  HttpHeaders
+  HttpHeaders,
 } from "./interfaces";
-import { RestError } from "./restError";
 import { createHttpHeaders } from "./httpHeaders";
+import { RestError } from "./restError";
 
 function isReadableStream(body: any): body is NodeJS.ReadableStream {
   return body && typeof body.pipe === "function";
@@ -70,11 +68,12 @@ class XhrHttpClient implements HttpClient {
 
     xhr.responseType = request.streamResponseStatusCodes?.size ? "blob" : "text";
 
-    if (isReadableStream(request.body)) {
+    const body = typeof request.body === "function" ? request.body() : request.body;
+    if (isReadableStream(body)) {
       throw new Error("Node streams are not supported in browser environment.");
     }
 
-    xhr.send(request.body === undefined ? null : request.body);
+    xhr.send(body === undefined ? null : body);
 
     if (xhr.responseType === "blob") {
       return new Promise((resolve, reject) => {
@@ -82,13 +81,13 @@ class XhrHttpClient implements HttpClient {
         rejectOnTerminalEvent(request, xhr, reject);
       });
     } else {
-      return new Promise(function(resolve, reject) {
+      return new Promise(function (resolve, reject) {
         xhr.addEventListener("load", () =>
           resolve({
             request,
             status: xhr.status,
             headers: parseHeaders(xhr),
-            bodyAsText: xhr.responseText
+            bodyAsText: xhr.responseText,
           })
         );
         rejectOnTerminalEvent(request, xhr, reject);
@@ -121,7 +120,7 @@ function handleBlobResponse(
           request,
           status: xhr.status,
           headers: parseHeaders(xhr),
-          blobBody
+          blobBody,
         });
       } else {
         xhr.addEventListener("load", () => {
@@ -136,7 +135,7 @@ function handleBlobResponse(
                   request: request,
                   status: xhr.status,
                   headers: parseHeaders(xhr),
-                  bodyAsText: text
+                  bodyAsText: text,
                 });
                 return;
               })
@@ -147,7 +146,7 @@ function handleBlobResponse(
             res({
               request,
               status: xhr.status,
-              headers: parseHeaders(xhr)
+              headers: parseHeaders(xhr),
             });
           }
         });
@@ -163,7 +162,7 @@ function addProgressListener(
   if (listener) {
     xhr.addEventListener("progress", (rawEvent) =>
       listener({
-        loadedBytes: rawEvent.loaded
+        loadedBytes: rawEvent.loaded,
       })
     );
   }
@@ -193,7 +192,7 @@ function rejectOnTerminalEvent(
     reject(
       new RestError(`Failed to send request to ${request.url}`, {
         code: RestError.REQUEST_SEND_ERROR,
-        request
+        request,
       })
     )
   );

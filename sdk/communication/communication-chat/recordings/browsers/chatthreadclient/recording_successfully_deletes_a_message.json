@@ -1,20 +1,41 @@
 {
- "recordings": [
-  {
-   "method": "DELETE",
-   "url": "https://endpoint/chat/threads/19%3Ag0x1r-Au6W3oC_P19M8Tg8l7xbEou6NTDjR2gplU33A1%40thread.v2/messages/1630697249791",
-   "query": {
-    "api-version": "2021-09-07"
-   },
-   "requestBody": null,
-   "status": 204,
-   "response": "",
-   "responseHeaders": {}
-  }
- ],
- "uniqueTestInfo": {
-  "uniqueName": {},
-  "newDate": {}
- },
- "hash": "4df622d771cf4f64d29813ba82281467"
+  "Entries": [
+    {
+      "RequestUri": "https://endpoint/chat/threads/19%3ASWkac8Ohhun6cBYZUJu7GWyUwrnSppuvzamOFUDuz641%40thread.v2/messages/1648676205175?api-version=2021-09-07",
+      "RequestMethod": "DELETE",
+      "RequestHeaders": {
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US",
+        "Authorization": "Sanitized",
+        "Connection": "keep-alive",
+        "Origin": "http://localhost:9876",
+        "Referer": "http://localhost:9876/",
+        "sec-ch-ua": "",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-site",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/100.0.4889.0 Safari/537.36",
+        "x-ms-client-request-id": "c73d11d9-d075-4d8b-a5bb-9e87cecf2e81",
+        "x-ms-useragent": "azsdk-js-azure-communication-chat/1.2.0 core-rest-pipeline/1.8.0 OS/MacIntel"
+      },
+      "RequestBody": null,
+      "StatusCode": 204,
+      "ResponseHeaders": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Expose-Headers": "Location",
+        "api-supported-versions": "2021-03-07, 2021-04-05-preview6, 2021-09-07, 2021-10-01-preview7",
+        "Date": "Wed, 30 Mar 2022 21:36:48 GMT",
+        "MS-CV": "gKOzqBp\u002BAEawbP7LkJSezQ.0",
+        "Strict-Transport-Security": "max-age=2592000",
+        "X-Azure-Ref": "0cM1EYgAAAAAj0ekoJujFTYf\u002BcAtnJZMpUERYMzFFREdFMDIxMgBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
+        "X-Cache": "CONFIG_NOCACHE",
+        "X-Processing-Time": "407ms"
+      },
+      "ResponseBody": null
+    }
+  ],
+  "Variables": {}
 }

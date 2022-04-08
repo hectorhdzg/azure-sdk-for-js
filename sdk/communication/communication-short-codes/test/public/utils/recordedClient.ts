@@ -5,27 +5,23 @@ import { Context } from "mocha";
 import * as dotenv from "dotenv";
 
 import {
-  env,
   Recorder,
-  record,
   RecorderEnvironmentSetup,
-  isPlaybackMode
+  env,
+  isLiveMode,
+  isPlaybackMode,
+  record,
 } from "@azure-tools/test-recorder";
-import {
-  DefaultHttpClient,
-  HttpClient,
-  HttpOperationResponse,
-  isNode,
-  TokenCredential,
-  WebResourceLike
-} from "@azure/core-http";
 import { ShortCodesClient, ShortCodesClientOptions } from "../../../src";
 import { parseConnectionString } from "@azure/communication-common";
-import { ClientSecretCredential, DefaultAzureCredential } from "@azure/identity";
+import { ClientSecretCredential, DefaultAzureCredential, TokenCredential } from "@azure/identity";
+import { createXhrHttpClient, isNode } from "@azure/test-utils";
 
 if (isNode) {
   dotenv.config();
 }
+
+const httpClient = isNode || isLiveMode() ? undefined : createXhrHttpClient();
 
 export interface RecordedClient<T> {
   client: T;
@@ -36,7 +32,7 @@ const replaceableVariables: { [k: string]: string } = {
   COMMUNICATION_LIVETEST_STATIC_CONNECTION_STRING: "endpoint=https://endpoint/;accesskey=banana",
   AZURE_CLIENT_ID: "SomeClientId",
   AZURE_CLIENT_SECRET: "azure_client_secret",
-  AZURE_TENANT_ID: "SomeTenantId"
+  AZURE_TENANT_ID: "SomeTenantId",
 };
 
 export const environmentSetup: RecorderEnvironmentSetup = {
@@ -47,9 +43,9 @@ export const environmentSetup: RecorderEnvironmentSetup = {
       recording.replace(
         /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/gi,
         "00000000-0000-0000-0000-000000000000"
-      )
+      ),
   ],
-  queryParametersToSkip: []
+  queryParametersToSkip: [],
 };
 
 export function createRecordedClient(context: Context): RecordedClient<ShortCodesClient> {
@@ -58,17 +54,19 @@ export function createRecordedClient(context: Context): RecordedClient<ShortCode
   // casting is a workaround to enable min-max testing
   return {
     client: new ShortCodesClient(env.COMMUNICATION_LIVETEST_STATIC_CONNECTION_STRING, {
-      httpClient: createTestHttpClient()
+      httpClient,
     } as ShortCodesClientOptions),
-    recorder
+    recorder,
   };
 }
 
-export function createMockToken(): TokenCredential {
+export function createMockToken(): {
+  getToken: (_scopes: string) => Promise<{ token: string; expiresOnTimestamp: number }>;
+} {
   return {
-    getToken: async (_scopes) => {
+    getToken: async (_scopes: string) => {
       return { token: "testToken", expiresOnTimestamp: 11111 };
-    }
+    },
   };
 }
 
@@ -77,17 +75,18 @@ export function createRecordedClientWithToken(
 ): RecordedClient<ShortCodesClient> | undefined {
   const recorder = record(context, environmentSetup);
   let credential: TokenCredential;
-  const endpoint = parseConnectionString(env.COMMUNICATION_LIVETEST_STATIC_CONNECTION_STRING)
-    .endpoint;
+  const endpoint = parseConnectionString(
+    env.COMMUNICATION_LIVETEST_STATIC_CONNECTION_STRING
+  ).endpoint;
   if (isPlaybackMode()) {
     credential = createMockToken();
 
     // casting is a workaround to enable min-max testing
     return {
       client: new ShortCodesClient(endpoint, credential, {
-        httpClient: createTestHttpClient()
+        httpClient,
       } as ShortCodesClientOptions),
-      recorder
+      recorder,
     };
   }
 
@@ -104,33 +103,12 @@ export function createRecordedClientWithToken(
   // casting is a workaround to enable min-max testing
   return {
     client: new ShortCodesClient(endpoint, credential, {
-      httpClient: createTestHttpClient()
+      httpClient,
     } as ShortCodesClientOptions),
-    recorder
+    recorder,
   };
 }
 
 export const testPollerOptions = {
-  pollInterval: isPlaybackMode() ? 0 : undefined
+  pollInterval: isPlaybackMode() ? 0 : undefined,
 };
-
-function createTestHttpClient(): HttpClient {
-  const customHttpClient = new DefaultHttpClient();
-
-  const originalSendRequest = customHttpClient.sendRequest;
-  customHttpClient.sendRequest = async function(
-    httpRequest: WebResourceLike
-  ): Promise<HttpOperationResponse> {
-    const requestResponse = await originalSendRequest.apply(this, [httpRequest]);
-
-    console.log(
-      `MS-CV header for request: ${httpRequest.url} (${
-        requestResponse.status
-      } - ${requestResponse.headers.get("ms-cv")})`
-    );
-
-    return requestResponse;
-  };
-
-  return customHttpClient;
-}

@@ -33,46 +33,6 @@ export interface ConnectedRegistryListResult {
   nextLink?: string;
 }
 
-/** The resource model definition for a ARM proxy resource. It will have everything other than required location and tags. */
-export interface ProxyResource {
-  /**
-   * The resource ID.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly id?: string;
-  /**
-   * The name of the resource.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly name?: string;
-  /**
-   * The type of the resource.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly type?: string;
-  /**
-   * Metadata pertaining to creation and last modification of the resource.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly systemData?: SystemData;
-}
-
-/** Metadata pertaining to creation and last modification of the resource. */
-export interface SystemData {
-  /** The identity that created the resource. */
-  createdBy?: string;
-  /** The type of identity that created the resource. */
-  createdByType?: CreatedByType;
-  /** The timestamp of resource creation (UTC). */
-  createdAt?: Date;
-  /** The identity that last modified the resource. */
-  lastModifiedBy?: string;
-  /** The type of identity that last modified the resource. */
-  lastModifiedByType?: LastModifiedByType;
-  /** The timestamp of resource modification (UTC). */
-  lastModifiedAt?: Date;
-}
-
 /** The activation properties of the connected registry. */
 export interface ActivationProperties {
   /**
@@ -191,6 +151,46 @@ export interface StatusDetailProperties {
   readonly correlationId?: string;
 }
 
+/** The resource model definition for a ARM proxy resource. It will have everything other than required location and tags. */
+export interface ProxyResource {
+  /**
+   * The resource ID.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly id?: string;
+  /**
+   * The name of the resource.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly name?: string;
+  /**
+   * The type of the resource.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly type?: string;
+  /**
+   * Metadata pertaining to creation and last modification of the resource.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly systemData?: SystemData;
+}
+
+/** Metadata pertaining to creation and last modification of the resource. */
+export interface SystemData {
+  /** The identity that created the resource. */
+  createdBy?: string;
+  /** The type of identity that created the resource. */
+  createdByType?: CreatedByType;
+  /** The timestamp of resource creation (UTC). */
+  createdAt?: Date;
+  /** The identity that last modified the resource. */
+  lastModifiedBy?: string;
+  /** The type of identity that last modified the resource. */
+  lastModifiedByType?: LastModifiedByType;
+  /** The timestamp of resource modification (UTC). */
+  lastModifiedAt?: Date;
+}
+
 /** An error response from the Azure Container Registry service. */
 export interface ErrorResponse {
   /** Azure container registry build API error body. */
@@ -206,7 +206,7 @@ export interface ErrorResponseBody {
   /** target of the particular error. */
   target?: string;
   /** an array of additional nested error response info objects, as described by this contract. */
-  details?: InnerErrorDescription;
+  details?: InnerErrorDescription[];
 }
 
 /** inner error. */
@@ -554,34 +554,6 @@ export interface RegistryListResult {
   nextLink?: string;
 }
 
-/** An Azure resource. */
-export interface Resource {
-  /**
-   * The resource ID.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly id?: string;
-  /**
-   * The name of the resource.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly name?: string;
-  /**
-   * The type of the resource.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly type?: string;
-  /** The location of the resource. This cannot be changed after the resource is created. */
-  location: string;
-  /** The tags of the resource. */
-  tags?: { [propertyName: string]: string };
-  /**
-   * Metadata pertaining to creation and last modification of the resource.
-   * NOTE: This property will not be serialized. It can only be populated by the server.
-   */
-  readonly systemData?: SystemData;
-}
-
 /** The SKU of a container registry. */
 export interface Sku {
   /** The SKU name of the container registry. Required for registry creation. */
@@ -710,6 +682,34 @@ export interface KeyVaultProperties {
    * NOTE: This property will not be serialized. It can only be populated by the server.
    */
   readonly lastKeyRotationTimestamp?: Date;
+}
+
+/** An Azure resource. */
+export interface Resource {
+  /**
+   * The resource ID.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly id?: string;
+  /**
+   * The name of the resource.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly name?: string;
+  /**
+   * The type of the resource.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly type?: string;
+  /** The location of the resource. This cannot be changed after the resource is created. */
+  location: string;
+  /** The tags of the resource. */
+  tags?: { [propertyName: string]: string };
+  /**
+   * Metadata pertaining to creation and last modification of the resource.
+   * NOTE: This property will not be serialized. It can only be populated by the server.
+   */
+  readonly systemData?: SystemData;
 }
 
 /** The parameters for updating a container registry. */
@@ -2152,46 +2152,6 @@ export type EncodedTaskStepUpdateParameters = TaskStepUpdateParameters & {
   values?: SetValue[];
 };
 
-/** Known values of {@link CreatedByType} that the service accepts. */
-export enum KnownCreatedByType {
-  User = "User",
-  Application = "Application",
-  ManagedIdentity = "ManagedIdentity",
-  Key = "Key"
-}
-
-/**
- * Defines values for CreatedByType. \
- * {@link KnownCreatedByType} can be used interchangeably with CreatedByType,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **User** \
- * **Application** \
- * **ManagedIdentity** \
- * **Key**
- */
-export type CreatedByType = string;
-
-/** Known values of {@link LastModifiedByType} that the service accepts. */
-export enum KnownLastModifiedByType {
-  User = "User",
-  Application = "Application",
-  ManagedIdentity = "ManagedIdentity",
-  Key = "Key"
-}
-
-/**
- * Defines values for LastModifiedByType. \
- * {@link KnownLastModifiedByType} can be used interchangeably with LastModifiedByType,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **User** \
- * **Application** \
- * **ManagedIdentity** \
- * **Key**
- */
-export type LastModifiedByType = string;
-
 /** Known values of {@link ProvisioningState} that the service accepts. */
 export enum KnownProvisioningState {
   Creating = "Creating",
@@ -2339,6 +2299,46 @@ export enum KnownAuditLogStatus {
  * **Disabled**
  */
 export type AuditLogStatus = string;
+
+/** Known values of {@link CreatedByType} that the service accepts. */
+export enum KnownCreatedByType {
+  User = "User",
+  Application = "Application",
+  ManagedIdentity = "ManagedIdentity",
+  Key = "Key"
+}
+
+/**
+ * Defines values for CreatedByType. \
+ * {@link KnownCreatedByType} can be used interchangeably with CreatedByType,
+ *  this enum contains the known values that the service supports.
+ * ### Known values supported by the service
+ * **User** \
+ * **Application** \
+ * **ManagedIdentity** \
+ * **Key**
+ */
+export type CreatedByType = string;
+
+/** Known values of {@link LastModifiedByType} that the service accepts. */
+export enum KnownLastModifiedByType {
+  User = "User",
+  Application = "Application",
+  ManagedIdentity = "ManagedIdentity",
+  Key = "Key"
+}
+
+/**
+ * Defines values for LastModifiedByType. \
+ * {@link KnownLastModifiedByType} can be used interchangeably with LastModifiedByType,
+ *  this enum contains the known values that the service supports.
+ * ### Known values supported by the service
+ * **User** \
+ * **Application** \
+ * **ManagedIdentity** \
+ * **Key**
+ */
+export type LastModifiedByType = string;
 
 /** Known values of {@link PipelineOptions} that the service accepts. */
 export enum KnownPipelineOptions {
@@ -3220,6 +3220,13 @@ export interface RegistriesListPrivateLinkResourcesOptionalParams
 
 /** Contains response data for the listPrivateLinkResources operation. */
 export type RegistriesListPrivateLinkResourcesResponse = PrivateLinkResourceListResult;
+
+/** Optional parameters. */
+export interface RegistriesGetPrivateLinkResourceOptionalParams
+  extends coreClient.OperationOptions {}
+
+/** Contains response data for the getPrivateLinkResource operation. */
+export type RegistriesGetPrivateLinkResourceResponse = PrivateLinkResource;
 
 /** Optional parameters. */
 export interface RegistriesListCredentialsOptionalParams

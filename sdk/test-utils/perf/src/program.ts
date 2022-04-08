@@ -4,10 +4,10 @@
 import { AbortController } from "@azure/abort-controller";
 import { PerfTest } from "./perfTest";
 import {
-  PerfOptionDictionary,
   parsePerfOption,
   defaultPerfOptions,
-  DefaultPerfOptions
+  DefaultPerfOptions,
+  ParsedPerfOptions,
 } from "./options";
 import { PerfParallel } from "./parallel";
 import { exec } from "child_process";
@@ -36,7 +36,7 @@ import { PerfTestBase, PerfTestConstructor } from "./perfTestBase";
  */
 export class PerfProgram {
   private testName: string;
-  private parsedDefaultOptions: Required<PerfOptionDictionary<DefaultPerfOptions>>;
+  private parsedDefaultOptions: Required<ParsedPerfOptions<DefaultPerfOptions>>;
   private parallelNumber: number;
   private tests: PerfTestBase[];
 
@@ -103,19 +103,19 @@ export class PerfProgram {
     const weightedAverage = totalOperations / operationsPerSecond;
     console.log(
       `Completed ${totalOperations.toLocaleString(undefined, {
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
       })} ` +
         `operations in a weighted-average of ` +
         `${weightedAverage.toLocaleString(undefined, {
           maximumFractionDigits: 2,
-          minimumFractionDigits: 2
+          minimumFractionDigits: 2,
         })}s ` +
         `(${operationsPerSecond.toLocaleString(undefined, {
-          maximumFractionDigits: 2
+          maximumFractionDigits: 2,
         })} ops/s, ` +
         `${secondsPerOperation.toLocaleString(undefined, {
           maximumFractionDigits: 3,
-          minimumFractionDigits: 3
+          minimumFractionDigits: 3,
         })} s/op)`
     );
   }
@@ -127,31 +127,30 @@ export class PerfProgram {
     durationSeconds: number,
     title: string
   ): Promise<void> {
-    const parallels: PerfParallel[] = new Array<PerfParallel>(this.parallelNumber);
-
     const abortController = new AbortController();
     const durationMilliseconds = durationSeconds * 1000;
 
     // Even though we've set a setTimeout here, the eventLoop might get too busy to load it on time.
-    // For this reason, we also check if the time has passed inside of runLoop.
-    setTimeout(() => abortController.abort(), durationMilliseconds);
+    // For this reason, we also check if the time has passed inside of runAll.
+    const durationTimeout = setTimeout(() => abortController.abort(), durationMilliseconds);
 
     // This is how we customize how frequently we log how many completed operations have been executed.
-    // We don't enforce this inside of runLoop, so it might never be executed, depending on the number
+    // We don't enforce this inside of runAll, so it might never be executed, depending on the number
     // of operations running.
-    const millisecondsToLog = Number(this.parsedDefaultOptions["milliseconds-to-log"].value);
+    const millisecondsToLog = this.parsedDefaultOptions["milliseconds-to-log"].value;
     console.log(
-      `\n=== ${title} mode, iteration ${iterationIndex + 1}. Logs every ${millisecondsToLog /
-        1000}s ===`
+      `\n=== ${title} mode, iteration ${iterationIndex + 1}. Logs every ${
+        millisecondsToLog / 1000
+      }s ===`
     );
     console.log(`ElapsedTime\tCurrent\t\tTotal\t\tAverage`);
     let lastCompleted = 0;
     const startMillis = new Date().getTime();
 
     const logInterval = setInterval(() => {
-      const totalCompleted = this.getCompletedOperations(parallels);
+      const totalCompleted = this.getCompletedOperations(this.tests);
       const currentCompleted = totalCompleted - lastCompleted;
-      const averageCompleted = this.getOperationsPerSecond(parallels);
+      const averageCompleted = this.getOperationsPerSecond(this.tests);
       const elapsedTime = formatDuration(new Date().getTime() - startMillis);
 
       lastCompleted = totalCompleted;
@@ -174,21 +173,19 @@ export class PerfProgram {
     // then in another loop, we wait for each one of these promises to finish.
     // This should allow for the event loop to decide when to process each test call.
     await Promise.all(
-      this.tests.map((test, i = 0) => {
-        parallels[i] = {
-          completedOperations: 0,
-          lastMillisecondsElapsed: 0
-        };
-        return test.runAll(parallels[i], durationMilliseconds, abortController);
+      this.tests.map((test) => {
+        return test.runAll(durationMilliseconds, abortController);
       })
     );
 
     // Once we finish, we clear the log interval.
     clearInterval(logInterval);
+    // If the runAll ended before the duration, we need to clear the timeout
+    clearTimeout(durationTimeout);
 
     // Finally, we show the results.
     console.log(`=== ${title} mode, results of iteration ${iterationIndex + 1} ===`);
-    this.logResults(parallels);
+    this.logResults(this.tests);
   }
 
   private async logPackageVersions(listTransitiveDeps: boolean): Promise<void> {

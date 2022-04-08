@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { GetTokenOptions } from "@azure/core-auth";
 import { AuthorizeRequestOnChallengeOptions } from "@azure/core-rest-pipeline";
+import { GetTokenOptions } from "@azure/core-auth";
 import { createClientLogger } from "@azure/logger";
 import { decodeStringToString } from "./base64";
 
@@ -86,7 +86,7 @@ export async function authorizeRequestOnClaimChallenge(
   const accessToken = await onChallengeOptions.getAccessToken(
     parsedChallenge.scope ? [parsedChallenge.scope] : scopes,
     {
-      claims: decodeStringToString(parsedChallenge.claims)
+      claims: decodeStringToString(parsedChallenge.claims),
     } as GetTokenOptions
   );
 

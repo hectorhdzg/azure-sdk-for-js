@@ -315,7 +315,9 @@ export type ConnectionState = string;
 export type ConnectionStatus = string;
 
 // @public (undocumented)
-export class ContainerRegistryManagementClient extends ContainerRegistryManagementClientContext {
+export class ContainerRegistryManagementClient extends coreClient.ServiceClient {
+    // (undocumented)
+    $host: string;
     constructor(credentials: coreAuth.TokenCredential, subscriptionId: string, options?: ContainerRegistryManagementClientOptionalParams);
     // (undocumented)
     agentPools: AgentPools;
@@ -340,6 +342,8 @@ export class ContainerRegistryManagementClient extends ContainerRegistryManageme
     // (undocumented)
     scopeMaps: ScopeMaps;
     // (undocumented)
+    subscriptionId: string;
+    // (undocumented)
     taskRuns: TaskRuns;
     // (undocumented)
     tasks: Tasks;
@@ -347,15 +351,6 @@ export class ContainerRegistryManagementClient extends ContainerRegistryManageme
     tokens: Tokens;
     // (undocumented)
     webhooks: Webhooks;
-}
-
-// @public (undocumented)
-export class ContainerRegistryManagementClientContext extends coreClient.ServiceClient {
-    // (undocumented)
-    $host: string;
-    constructor(credentials: coreAuth.TokenCredential, subscriptionId: string, options?: ContainerRegistryManagementClientOptionalParams);
-    // (undocumented)
-    subscriptionId: string;
 }
 
 // @public
@@ -469,7 +464,7 @@ export interface ErrorResponse {
 // @public
 export interface ErrorResponseBody {
     code: string;
-    details?: InnerErrorDescription;
+    details?: InnerErrorDescription[];
     message: string;
     target?: string;
 }
@@ -1650,6 +1645,7 @@ export interface Registries {
     checkNameAvailability(registryNameCheckRequest: RegistryNameCheckRequest, options?: RegistriesCheckNameAvailabilityOptionalParams): Promise<RegistriesCheckNameAvailabilityResponse>;
     get(resourceGroupName: string, registryName: string, options?: RegistriesGetOptionalParams): Promise<RegistriesGetResponse>;
     getBuildSourceUploadUrl(resourceGroupName: string, registryName: string, options?: RegistriesGetBuildSourceUploadUrlOptionalParams): Promise<RegistriesGetBuildSourceUploadUrlResponse>;
+    getPrivateLinkResource(resourceGroupName: string, registryName: string, groupName: string, options?: RegistriesGetPrivateLinkResourceOptionalParams): Promise<RegistriesGetPrivateLinkResourceResponse>;
     list(options?: RegistriesListOptionalParams): PagedAsyncIterableIterator<Registry>;
     listByResourceGroup(resourceGroupName: string, options?: RegistriesListByResourceGroupOptionalParams): PagedAsyncIterableIterator<Registry>;
     listCredentials(resourceGroupName: string, registryName: string, options?: RegistriesListCredentialsOptionalParams): Promise<RegistriesListCredentialsResponse>;
@@ -1699,6 +1695,13 @@ export type RegistriesGetBuildSourceUploadUrlResponse = SourceUploadDefinition;
 // @public
 export interface RegistriesGetOptionalParams extends coreClient.OperationOptions {
 }
+
+// @public
+export interface RegistriesGetPrivateLinkResourceOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type RegistriesGetPrivateLinkResourceResponse = PrivateLinkResource;
 
 // @public
 export type RegistriesGetResponse = Registry;

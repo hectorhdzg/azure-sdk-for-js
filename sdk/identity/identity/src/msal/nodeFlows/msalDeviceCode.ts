@@ -39,11 +39,9 @@ export class MsalDeviceCode extends MsalNode {
         cancel: false,
         correlationId: options?.correlationId,
         authority: options?.authority,
-        claims: options?.claims
+        claims: options?.claims,
       };
       const promise = this.publicApp!.acquireTokenByDeviceCode(requestOptions);
-      // TODO:
-      // This should work, but it currently doesn't. I'm waiting for an answer from the MSAL team.
       const deviceResponse = await this.withCancellation(promise, options?.abortSignal, () => {
         requestOptions.cancel = true;
       });

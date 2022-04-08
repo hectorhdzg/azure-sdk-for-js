@@ -8,7 +8,7 @@ import Sinon from "sinon";
 import http from "http";
 import { assert } from "chai";
 import { Context } from "mocha";
-import { env } from "@azure-tools/test-recorder";
+import { env, Recorder } from "@azure-tools/test-recorder";
 import { InteractiveBrowserCredential } from "../../../src";
 import { MsalTestCleanup, msalNodeTestSetup } from "../../msalTestUtils";
 import { interactiveBrowserMockable } from "../../../src/msal/nodeFlows/msalOpenBrowser";
@@ -21,17 +21,19 @@ declare global {
   }
 }
 
-describe("InteractiveBrowserCredential (internal)", function() {
+describe("InteractiveBrowserCredential (internal)", function () {
   let cleanup: MsalTestCleanup;
   let sandbox: Sinon.SinonSandbox;
   let listen: http.Server | undefined;
+  let recorder: Recorder;
 
-  beforeEach(function(this: Context) {
-    const setup = msalNodeTestSetup(this);
+  beforeEach(async function (this: Context) {
+    const setup = await msalNodeTestSetup(this.currentTest);
     sandbox = setup.sandbox;
     cleanup = setup.cleanup;
+    recorder = setup.recorder;
   });
-  afterEach(async function() {
+  afterEach(async function () {
     if (listen) {
       listen.close();
     }
@@ -40,16 +42,18 @@ describe("InteractiveBrowserCredential (internal)", function() {
 
   const scope = "https://vault.azure.net/.default";
 
-  it("Throws an expected error if no browser is available", async function(this: Context) {
+  it("Throws an expected error if no browser is available", async function (this: Context) {
     // The SinonStub type does not include this second parameter to throws().
     const testErrorMessage = "No browsers available on this test.";
     (sandbox.stub(interactiveBrowserMockable, "open") as any).throws("TestError", testErrorMessage);
 
-    const credential = new InteractiveBrowserCredential({
-      redirectUri: "http://localhost:8081",
-      tenantId: env.AZURE_TENANT_ID,
-      clientId: env.AZURE_CLIENT_ID
-    });
+    const credential = new InteractiveBrowserCredential(
+      recorder.configureClientOptions({
+        redirectUri: "http://localhost:8081",
+        tenantId: env.AZURE_TENANT_ID,
+        clientId: env.AZURE_CLIENT_ID,
+      })
+    );
 
     let error: Error | undefined;
     try {
@@ -65,7 +69,7 @@ describe("InteractiveBrowserCredential (internal)", function() {
     );
   });
 
-  it("Throws an expected error if port 1337 is not available", async function(this: Context) {
+  it("Throws an expected error if port 1337 is not available", async function (this: Context) {
     const app = http.createServer((): void => undefined);
 
     const asyncListen = (port: string): Promise<http.Server> =>
@@ -82,11 +86,13 @@ describe("InteractiveBrowserCredential (internal)", function() {
       listen = await asyncListen(port);
     }
 
-    const credential = new InteractiveBrowserCredential({
-      redirectUri: `http://localhost:${port}`,
-      tenantId: env.AZURE_TENANT_ID,
-      clientId: env.AZURE_CLIENT_ID
-    });
+    const credential = new InteractiveBrowserCredential(
+      recorder.configureClientOptions({
+        redirectUri: `http://localhost:${port}`,
+        tenantId: env.AZURE_TENANT_ID,
+        clientId: env.AZURE_CLIENT_ID,
+      })
+    );
 
     let error: Error | undefined;
     try {
@@ -101,7 +107,7 @@ describe("InteractiveBrowserCredential (internal)", function() {
       [
         `InteractiveBrowserCredential: Access denied to port ${port}.`,
         `Try sending a redirect URI with a different port, as follows:`,
-        '`new InteractiveBrowserCredential({ redirectUri: "http://localhost:1337" })`'
+        '`new InteractiveBrowserCredential({ redirectUri: "http://localhost:1337" })`',
       ].join(" ")
     );
   });
