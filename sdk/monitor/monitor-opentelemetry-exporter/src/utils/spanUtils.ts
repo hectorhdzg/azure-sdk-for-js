@@ -83,7 +83,11 @@ function createTagsFromSpan(span: ReadableSpan): Tags {
         try {
           let url = new URL(String(httpUrl));
           tags[KnownContextTagKeys.AiOperationName] = `${httpMethod} ${url.pathname}`;
+<<<<<<< HEAD
         } catch (ex) { }
+=======
+        } catch (ex: any) {}
+>>>>>>> upstream/main
       }
       if (httpClientIp) {
         tags[KnownContextTagKeys.AiLocationIp] = String(httpClientIp);
@@ -230,7 +234,11 @@ function createDependencyData(span: ReadableSpan): RemoteDependencyData {
       try {
         let dependencyUrl = new URL(String(httpUrl));
         remoteDependencyData.name = `${httpMethod} ${dependencyUrl.pathname}`;
+<<<<<<< HEAD
       } catch (ex) { }
+=======
+      } catch (ex: any) {}
+>>>>>>> upstream/main
     }
     remoteDependencyData.type = DependencyTypes.Http;
     remoteDependencyData.data = getUrl(span);
@@ -252,7 +260,11 @@ function createDependencyData(span: ReadableSpan): RemoteDependencyData {
             target = res[1] + res[2] + res[4];
           }
         }
+<<<<<<< HEAD
       } catch (error) { }
+=======
+      } catch (error: any) {}
+>>>>>>> upstream/main
       remoteDependencyData.target = `${target}`;
     }
   }
