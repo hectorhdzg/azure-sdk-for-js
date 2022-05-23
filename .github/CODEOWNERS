@@ -141,15 +141,6 @@
 # PRLabel: %Search
 /sdk/search/ @sarangan12 @xirzec
 
-<<<<<<< HEAD
-/sdk/applicationinsights/applicationinsights-query/ @omziv @anatse @raronen @ischrei @danhadari @azmonapplicationinsights
-/sdk/operationalinsights/loganalytics/ @omziv @anatse @raronen @ischrei @danhadari @azmonapplicationinsights
-
-/sdk/cognitiveservices/cognitiveservices-qnamaker-runtime/ @bingisbestest @nerajput1607
-/sdk/cognitiveservices/cognitiveservices-qnamaker/ @bingisbestest @nerajput1607
-=======
->>>>>>> upstream/main
-
 # PRLabel: %Mixed Reality
 /sdk/mixedreality/ @craigktreasure 
 

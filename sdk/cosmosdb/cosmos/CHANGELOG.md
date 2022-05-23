@@ -21,8 +21,6 @@
 - _GA_ support for Batch operation PATCH.
 - Added the `SasTokenProperties` type and a `createAuthorizationSasToken` function to enable scoped access to Cosmos resources with SAS tokens. For an example that demonstrates creating a SAS token and using it to authenticate a `CosmosClient`, see [the `SasTokenAuth` sample](https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/cosmosdb/cosmos/samples/v3/typescript/src/SasTokenAuth.ts).
 
-- Fixed bugs in session token clearing logic. Session Not found (404, substatus 1002) was not being handled correctly by the session retry policy and would mistakenly retry the request with the same session token.
-
 ### Other Changes
 
 - Made several changes to the sample programs to improve code quality and compatibility with Node 12, and upgraded the sample programs' dependencies.
