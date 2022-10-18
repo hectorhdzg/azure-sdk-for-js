@@ -18,8 +18,7 @@ import { resourceMetricsToEnvelope } from "../utils/metricUtils";
  */
 export class AzureMonitorMetricExporter
   extends AzureMonitorBaseExporter
-  implements PushMetricExporter
-{
+  implements PushMetricExporter {
   /**
    * Flag to determine if Exporter is shutdown.
    */
@@ -56,6 +55,9 @@ export class AzureMonitorMetricExporter
     diag.info(`Exporting ${metrics.scopeMetrics.length} metrics(s). Converting to envelopes...`);
 
     let envelopes: Envelope[] = resourceMetricsToEnvelope(metrics, this._instrumentationKey);
+    if (envelopes.length < 1) {
+      resultCallback({ code: ExportResultCode.FAILED });
+    }
     // Supress tracing until OpenTelemetry Metrics SDK support it
     context.with(suppressTracing(context.active()), async () => {
       resultCallback(await this._exportEnvelopes(envelopes));

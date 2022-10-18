@@ -391,7 +391,8 @@ export function spanEventsToEnvelopes(span: ReadableSpan, ikey: string): Envelop
       const properties = createPropertiesFromSpanAttributes(event.attributes);
       const tags: Tags = createGenericTagsFromSpan(span);
 
-      if (event.name == "exception") {
+      // Only generate exception telemetry for incoming requests
+      if (event.name == "exception" && span.kind == SpanKind.SERVER) {
         name = "Microsoft.ApplicationInsights.Exception";
         baseType = "ExceptionData";
         let typeName = "";

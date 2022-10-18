@@ -52,6 +52,9 @@ export class AzureMonitorTraceExporter extends AzureMonitorBaseExporter implemen
         envelopes.push(...spanEventEnvelopes);
       }
     });
+    if (envelopes.length < 1) {
+      resultCallback({ code: ExportResultCode.FAILED });
+    }
     resultCallback(await this._exportEnvelopes(envelopes));
   }
 

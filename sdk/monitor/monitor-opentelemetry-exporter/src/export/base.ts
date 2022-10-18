@@ -73,9 +73,9 @@ export abstract class AzureMonitorBaseExporter {
       return success
         ? { code: ExportResultCode.SUCCESS }
         : {
-            code: ExportResultCode.FAILED,
-            error: new Error("Failed to persist envelope in disk."),
-          };
+          code: ExportResultCode.FAILED,
+          error: new Error("Failed to persist envelope in disk."),
+        };
     } catch (ex: any) {
       return { code: ExportResultCode.FAILED, error: ex };
     }
@@ -93,7 +93,6 @@ export abstract class AzureMonitorBaseExporter {
    */
   protected async _exportEnvelopes(envelopes: Envelope[]): Promise<ExportResult> {
     diag.info(`Exporting ${envelopes.length} envelope(s)`);
-
     try {
       const { result, statusCode } = await this._sender.send(envelopes);
       this._numConsecutiveRedirects = 0;

@@ -31,3 +31,17 @@ export enum DependencyTypes {
 }
 
 export const AzureMonitorSampleRate = "_MS.sampleRate";
+
+export enum StandardMetrics {
+  REQUEST_DURATION = "azureMonitor.standardMetric.requestDuration",
+  DEPENDENCY_DURATION = "azureMonitor.standardMetric.dependencyDuration",
+  EXCEPTION_COUNT = "azureMonitor.standardMetric.exceptionCount",
+  TRACE_COUNT = "azureMonitor.standardMetric.traceCount",
+}
+
+export enum StandardMetricIds {
+  REQUESTS_DURATION = "requests/duration",
+  DEPENDENCY_DURATION = "dependencies/duration",
+  EXCEPTIONS_COUNT = "exceptions/count",
+  TRACES_COUNT = "traces/count",
+}

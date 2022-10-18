@@ -3,7 +3,9 @@
 
 import { MetricAttributes } from "@opentelemetry/api-metrics";
 import { DataPointType, Histogram, ResourceMetrics } from "@opentelemetry/sdk-metrics";
-import { TelemetryItem as Envelope, MetricsData, MetricDataPoint } from "../generated";
+import { TelemetryItem as Envelope, MetricsData, MetricDataPoint, KnownContextTagKeys } from "../generated";
+import { Tags } from "../types";
+import { StandardMetricIds, StandardMetrics } from "./constants/applicationinsights";
 import { createTagsFromResource } from "./resourceUtils";
 
 function createPropertiesFromMetricAttributes(attributes?: MetricAttributes): {
@@ -55,6 +57,7 @@ export function resourceMetricsToEnvelope(metrics: ResourceMetrics, ikey: string
           metricDataPoint.min = (dataPoint.value as Histogram).min;
         }
         baseData.metrics.push(metricDataPoint);
+        handleAzureMonitorStandardMetrics(baseData, tags);
         let envelope: Envelope = {
           name: "Microsoft.ApplicationInsights.Metric",
           time: time,
@@ -75,4 +78,32 @@ export function resourceMetricsToEnvelope(metrics: ResourceMetrics, ikey: string
   });
 
   return envelopes;
+}
+
+function handleAzureMonitorStandardMetrics(data: MetricsData, tags: Tags) {
+  if (data.metrics.length > 0 && data.metrics[0].name.startsWith("azureMonitor.standardMetric.")) {
+    data.properties = data.properties || {};
+    data.properties["_MS.IsAutocollected"] = "True";
+    data.properties["cloud/roleInstance"] = tags[KnownContextTagKeys.AiCloudRoleInstance];
+    data.properties["cloud/roleName"] = tags[KnownContextTagKeys.AiCloudRole];
+
+    if (data.metrics[0].name == StandardMetrics.REQUEST_DURATION) {
+      data.properties["_MS.MetricId"] = StandardMetricIds.REQUESTS_DURATION;
+      data.properties["request/resultCode"] = "";
+      data.properties["Request.Success"] = "";
+    }
+    else if (data.metrics[0].name == StandardMetrics.DEPENDENCY_DURATION) {
+      data.properties["_MS.MetricId"] = StandardMetricIds.DEPENDENCY_DURATION;
+      data.properties["dependency/target"] = "";
+      data.properties["dependency/resultCode"] = "";
+      data.properties["Dependency.Type"] = "";
+      data.properties["Dependency.Success"] = "";
+    }
+    else if (data.metrics[0].name == StandardMetrics.TRACE_COUNT) {
+      data.properties["_MS.MetricId"] = StandardMetricIds.TRACES_COUNT;
+    }
+    else if (data.metrics[0].name == StandardMetrics.EXCEPTION_COUNT) {
+      data.properties["_MS.MetricId"] = StandardMetricIds.EXCEPTIONS_COUNT;
+    }
+  }
 }
