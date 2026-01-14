@@ -1667,4 +1667,65 @@ describe("spanUtils.ts", () => {
       "ATTR_ENDUSER_PSEUDO_ID should not be included in properties",
     );
   });
+
+  it("should map enduser id attributes to tags when both are present", () => {
+    const spanOptions: SpanOptions = {
+      kind: SpanKind.SERVER,
+    };
+    const span = tracer.startSpan("span", spanOptions, ROOT_CONTEXT);
+    span.setAttributes({
+      [experimentalOpenTelemetryValues.ATTR_ENDUSER_ID]: "auth-user",
+      [experimentalOpenTelemetryValues.ATTR_ENDUSER_PSEUDO_ID]: "pseudo-user",
+      "extra.attribute": "foo",
+    });
+    span.setStatus({
+      code: SpanStatusCode.OK,
+    });
+    span.end();
+    const readableSpan = spanToReadableSpan(span);
+
+    const expectedTags: Tags = {};
+    expectedTags[KnownContextTagKeys.AiOperationId] = span.spanContext().traceId;
+    expectedTags[KnownContextTagKeys.AiUserAuthUserId] = "auth-user";
+    expectedTags[KnownContextTagKeys.AiUserId] = "pseudo-user";
+    expectedTags[KnownContextTagKeys.AiOperationName] = "span";
+
+    const expectedProperties = {
+      "extra.attribute": "foo",
+    };
+
+    const expectedBaseData: Partial<RequestData> = {
+      id: `${span.spanContext().spanId}`,
+      success: true,
+      responseCode: "0",
+      name: `span`,
+      version: 2,
+      source: undefined,
+      properties: expectedProperties,
+      measurements: {},
+    };
+
+    const envelope = readableSpanToEnvelope(readableSpan, "ikey");
+    assertEnvelope(
+      envelope,
+      "Microsoft.ApplicationInsights.Request",
+      100,
+      "RequestData",
+      expectedTags,
+      expectedProperties,
+      emptyMeasurements,
+      expectedBaseData,
+    );
+
+    assert.ok(
+      !envelope.data?.baseData?.properties?.[experimentalOpenTelemetryValues.ATTR_ENDUSER_ID],
+      "ATTR_ENDUSER_ID should not be included in properties",
+    );
+    assert.ok(
+      !envelope.data?.baseData?.properties?.[
+        experimentalOpenTelemetryValues.ATTR_ENDUSER_PSEUDO_ID
+      ],
+      "ATTR_ENDUSER_PSEUDO_ID should not be included in properties",
+    );
+  });
 });

@@ -89,11 +89,22 @@ function createTagsFromSpan(span: ReadableSpan): Tags {
     tags[KnownContextTagKeys.AiOperationParentId] = span.parentSpanContext.spanId;
   }
 
-  // Map OpenTelemetry enduser attributes to Application Insights user attributes
-  const endUserId = span.attributes[experimentalOpenTelemetryValues.ATTR_ENDUSER_ID];
-  if (endUserId) {
-    tags[KnownContextTagKeys.AiUserAuthUserId] = String(endUserId);
-  }
+   // Map user ID attributes
+    const attributes = span.attributes as Attributes;
+    if (attributes[experimentalOpenTelemetryValues.ATTR_ENDUSER_ID]) {
+      const endUserId = String(attributes[experimentalOpenTelemetryValues.ATTR_ENDUSER_ID]);
+      if (endUserId && endUserId.length > 0) {
+        tags[KnownContextTagKeys.AiUserAuthUserId] = endUserId;
+      }
+    }
+    if (attributes[experimentalOpenTelemetryValues.ATTR_ENDUSER_PSEUDO_ID]) {
+      const endUserPseudoId = String(
+        attributes[experimentalOpenTelemetryValues.ATTR_ENDUSER_PSEUDO_ID],
+      );
+      if (endUserPseudoId && endUserPseudoId.length > 0) {
+        tags[KnownContextTagKeys.AiUserId] = endUserPseudoId;
+      }
+    }
 
   const endUserPseudoId = span.attributes[experimentalOpenTelemetryValues.ATTR_ENDUSER_PSEUDO_ID];
   if (endUserPseudoId) {
